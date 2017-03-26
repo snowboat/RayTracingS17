@@ -53,5 +53,17 @@ vec3f PointLight::shadowAttenuation(const vec3f& P) const
 {
     // YOUR CODE HERE:
     // You should implement shadow-handling code here.
+	vec3f d = (this->position - P).normalize();
+	ray r(P, d);
+
+	double distance = (this->position - P).length();
+
+	isect i;
+	if (scene->intersect(r, i)) {
+		if (i.t > 0 && i.t <= distance) {
+			const Material& m = i.getMaterial();
+			return m.kt;
+		}
+	}
     return vec3f(1,1,1);
 }
