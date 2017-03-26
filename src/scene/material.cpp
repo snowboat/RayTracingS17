@@ -4,6 +4,15 @@
 
 // Apply the phong model to this point on the surface of the object, returning
 // the color of that point.
+
+vec3f elementMulti(vec3f k, vec3f i) {
+	double i0 = k[0] * i[0];
+	double i1 = k[1] * i[1];
+	double i2 = k[2] * i[2];
+
+	return vec3f(i0, i1, i2);
+}
+
 vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 {
 	// YOUR CODE HERE
@@ -18,5 +27,27 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
     // You will need to call both distanceAttenuation() and shadowAttenuation()
     // somewhere in your code in order to compute shadows and light falloff.
 
-	return kd;
+	// iteration 0
+	vec3f I = ke;
+
+	// iteration 1
+	I = I + elementMulti(ka, scene->ambientLight);
+
+	// iteration 2+3
+	typedef list<Light*>::const_iterator iter;
+	iter j;
+	
+	for (j = scene->beginLights(); j != scene->endLights(); ++j) {
+		vec3f P = r.at(i.t);
+		vec3f L = (*j)->getDirection(P);
+		vec3f V = -r.getDirection();
+		vec3f R = 2 * (V*i.N)*i.N - V;
+		vec3f Diffuse = kd*max(0.0, L*i.N);
+		vec3f Specular = ks*max(0.0, pow(V*R, shininess*64));
+		I = I + elementMulti((*j)->getColor(P),Diffuse+Specular);
+	}
+	
+
+	return I;
 }
+

@@ -61,7 +61,9 @@ vec3f PointLight::shadowAttenuation(const vec3f& P) const
 	isect i;
 	if (scene->intersect(r, i)) {
 		if (i.t > 0 && i.t <= distance) {
+			cout << "yes" << endl;
 			const Material& m = i.getMaterial();
+			cout << m.kt << endl;
 			return m.kt;
 		}
 	}

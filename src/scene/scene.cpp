@@ -175,6 +175,7 @@ void Scene::initScene()
 {
 	bool first_boundedobject = true;
 	BoundingBox b;
+	ambientLight = vec3f(1.0, 1.0, 1.0);
 	
 	typedef list<Geometry*>::const_iterator iter;
 	// split the objects into two categories: bounded and non-bounded

@@ -249,6 +249,9 @@ public:
 
     TransformRoot transformRoot;
 
+	// Ia
+	vec3f ambientLight;
+
 public:
 	Scene() 
 		: transformRoot(), objects(), lights() {}
