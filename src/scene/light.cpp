@@ -13,6 +13,7 @@ vec3f DirectionalLight::shadowAttenuation( const vec3f& P ) const
 {
     // YOUR CODE HERE:
     // You should implement shadow-handling code here.
+	std::cout << "direction shadow" << endl;
     return vec3f(1,1,1);
 }
 
@@ -53,15 +54,14 @@ vec3f PointLight::shadowAttenuation(const vec3f& P) const
 {
     // YOUR CODE HERE:
     // You should implement shadow-handling code here.
-	vec3f d = (this->position - P).normalize();
+	vec3f d = (position - P).normalize();
 	ray r(P, d);
 
-	double distance = (this->position - P).length();
+	double distance = (position - P).length();
 
 	isect i;
 	if (scene->intersect(r, i)) {
 		if (i.t > 0 && i.t <= distance) {
-			cout << "yes" << endl;
 			const Material& m = i.getMaterial();
 			cout << m.kt << endl;
 			return m.kt;

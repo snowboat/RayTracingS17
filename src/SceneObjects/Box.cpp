@@ -46,7 +46,7 @@ bool Box::intersectLocal(const ray& r, isect& i) const
 		tmax = min(tmax, max(tz1, tz2));
 	}
 
-	if ((tmax >= tmin) || (abs(tmax - tmin) <= RAY_EPSILON)) {
+	if ( tmax >= tmin && tmin > RAY_EPSILON ) {
 		i.obj = this;
 		i.t = tmin;
 		if (plane == 0) {

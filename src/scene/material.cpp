@@ -32,7 +32,6 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 
 	// iteration 1
 	I = I + elementMulti(ka, scene->ambientLight);
-
 	// iteration 2+3
 	typedef list<Light*>::const_iterator iter;
 	iter j;
@@ -43,10 +42,9 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 		vec3f V = -r.getDirection();
 		vec3f R = 2 * (V*i.N)*i.N - V;
 		vec3f Diffuse = kd*max(0.0, L*i.N);
-		vec3f Specular = ks*max(0.0, pow(V*R, shininess*64));
-		I = I + elementMulti((*j)->getColor(P),Diffuse+Specular);
+		vec3f Specular = ks*pow(max(0.0,V*R), shininess*64);
+		I = I + elementMulti((*j)->shadowAttenuation(P),elementMulti((*j)->getColor(P),Diffuse+Specular));
 	}
-	
 
 	return I;
 }
