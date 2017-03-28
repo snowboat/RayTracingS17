@@ -12,6 +12,7 @@
 #include "TraceUI.h"
 #include "../RayTracer.h"
 
+
 static bool done;
 
 //------------------------------------- Help Functions --------------------------------------------
@@ -33,6 +34,11 @@ void TraceUI::cb_load_scene(Fl_Menu_* o, void* v)
 		if (pUI->raytracer->loadScene(newfile)) {
 			sprintf(buf, "Ray <%s>", newfile);
 			done=true;	// terminate the previous rendering
+
+			//transfer the atten factors from UI to the new scene
+			pUI->raytracer->getScene()->constAttenFactor = pUI->m_constAttenFactor;
+			pUI->raytracer->getScene()->linearAttenFactor = pUI->m_linearAttenFactor;
+			pUI->raytracer->getScene()->quadAttenFactor = pUI->m_quadAttenFactor;
 		} else{
 			sprintf(buf, "Ray <Not Loaded>");
 		}
@@ -90,6 +96,38 @@ void TraceUI::cb_sizeSlides(Fl_Widget* o, void* v)
 void TraceUI::cb_depthSlides(Fl_Widget* o, void* v)
 {
 	((TraceUI*)(o->user_data()))->m_nDepth=int( ((Fl_Slider *)o)->value() ) ;
+}
+
+void TraceUI::cb_constAttenSlides(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+	pUI->m_constAttenFactor = double(((Fl_Slider *)o)->value());
+
+	//Scale up/down the constant_attenuation_coeff for ALL LIGHTS in current scene
+	//I should make constAttenFactor a member of Scene
+	if (pUI->raytracer->getScene())
+		pUI->raytracer->getScene()->constAttenFactor = pUI->m_constAttenFactor;
+
+	
+}
+
+void TraceUI::cb_linearAttenSlides(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+	pUI->m_linearAttenFactor  = double(((Fl_Slider *)o)->value());
+	if (pUI->raytracer->getScene())
+		pUI->raytracer->getScene()->linearAttenFactor = pUI->m_linearAttenFactor;
+
+}
+
+void TraceUI::cb_quadAttenSlides(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+	pUI->m_quadAttenFactor = double(((Fl_Slider *)o)->value());
+
+	if (pUI->raytracer->getScene())
+		pUI->raytracer->getScene()->quadAttenFactor = pUI->m_quadAttenFactor;
+
 }
 
 void TraceUI::cb_render(Fl_Widget* o, void* v)
@@ -211,10 +249,17 @@ Fl_Menu_Item TraceUI::menuitems[] = {
 };
 
 TraceUI::TraceUI() {
-	// init.
+	//Value Initializations
 	m_nDepth = 0;
 	m_nSize = 150;
-	m_mainWindow = new Fl_Window(100, 40, 320, 100, "Ray <Not Loaded>");
+	m_constAttenFactor = 1.0;
+	m_linearAttenFactor = 1.0;
+	m_quadAttenFactor = 1.0;
+
+
+
+
+	m_mainWindow = new Fl_Window(100, 40, 400, 400, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
 		// install menu bar
 		m_menubar = new Fl_Menu_Bar(0, 0, 320, 25);
@@ -245,6 +290,49 @@ TraceUI::TraceUI() {
 		m_sizeSlider->value(m_nSize);
 		m_sizeSlider->align(FL_ALIGN_RIGHT);
 		m_sizeSlider->callback(cb_sizeSlides);
+
+
+		// install slider size
+		m_constAttenSlider = new Fl_Value_Slider(10, 80, 180, 20, "Attenuation, Constant");
+		m_constAttenSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_constAttenSlider->type(FL_HOR_NICE_SLIDER);
+		m_constAttenSlider->labelfont(FL_COURIER);
+		m_constAttenSlider->labelsize(12);
+		m_constAttenSlider->minimum(0.00);
+		m_constAttenSlider->maximum(5.00);
+		m_constAttenSlider->step(0.01);
+		m_constAttenSlider->value(m_constAttenFactor);
+		m_constAttenSlider->align(FL_ALIGN_RIGHT);
+		m_constAttenSlider->callback(cb_constAttenSlides);
+
+
+		// install linear attenuation slider
+		m_constAttenSlider = new Fl_Value_Slider(10, 105, 180, 20, "Attenuation, Linear");
+		m_constAttenSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_constAttenSlider->type(FL_HOR_NICE_SLIDER);
+		m_constAttenSlider->labelfont(FL_COURIER);
+		m_constAttenSlider->labelsize(12);
+		m_constAttenSlider->minimum(0.00);
+		m_constAttenSlider->maximum(5.00);
+		m_constAttenSlider->step(0.01);
+		m_constAttenSlider->value(m_linearAttenFactor);
+		m_constAttenSlider->align(FL_ALIGN_RIGHT);
+		m_constAttenSlider->callback(cb_linearAttenSlides);
+
+		// install slider size
+		m_constAttenSlider = new Fl_Value_Slider(10, 130, 180, 20, "Attenuation, Quadratic");
+		m_constAttenSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_constAttenSlider->type(FL_HOR_NICE_SLIDER);
+		m_constAttenSlider->labelfont(FL_COURIER);
+		m_constAttenSlider->labelsize(12);
+		m_constAttenSlider->minimum(0.00);
+		m_constAttenSlider->maximum(5.00);
+		m_constAttenSlider->step(0.01);
+		m_constAttenSlider->value(m_quadAttenFactor);
+		m_constAttenSlider->align(FL_ALIGN_RIGHT);
+		m_constAttenSlider->callback(cb_quadAttenSlides);
+
+
 
 		m_renderButton = new Fl_Button(240, 27, 70, 25, "&Render");
 		m_renderButton->user_data((void*)(this));

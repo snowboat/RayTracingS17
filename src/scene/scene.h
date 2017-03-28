@@ -254,7 +254,11 @@ public:
 
 public:
 	Scene() 
-		: transformRoot(), objects(), lights() {}
+		: transformRoot(), objects(), lights() {
+		constAttenFactor = 1.0;
+		linearAttenFactor = 1.0;
+		quadAttenFactor = 1.0;
+	}
 	virtual ~Scene();
 
 	void add( Geometry* obj )
@@ -270,8 +274,12 @@ public:
 
 	list<Light*>::const_iterator beginLights() const { return lights.begin(); }
 	list<Light*>::const_iterator endLights() const { return lights.end(); }
-        
+
 	Camera *getCamera() { return &camera; }
+
+	double constAttenFactor;
+	double linearAttenFactor;
+	double quadAttenFactor;
 
 	
 

@@ -39,7 +39,7 @@ public:
     vec3f kr;                    // reflective
     vec3f kt;                    // transmissive
     
-    double shininess;
+    double shininess;			//for specular component in Phong
     double index;               // index of refraction
 
     

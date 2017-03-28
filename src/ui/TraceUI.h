@@ -17,6 +17,7 @@
 #include <FL/fl_file_chooser.H>		// FLTK file chooser
 
 #include "TraceGLWindow.h"
+#include "../scene/light.h"
 
 class TraceUI {
 public:
@@ -28,6 +29,10 @@ public:
 
 	Fl_Slider*			m_sizeSlider;
 	Fl_Slider*			m_depthSlider;
+	Fl_Slider*			m_constAttenSlider;
+	Fl_Slider*			m_linearAttenSlider;
+	Fl_Slider*			m_quadAttenSlider;
+
 
 	Fl_Button*			m_renderButton;
 	Fl_Button*			m_stopButton;
@@ -47,6 +52,9 @@ private:
 
 	int			m_nSize;
 	int			m_nDepth;
+	double		m_constAttenFactor;
+	double		m_linearAttenFactor;
+	double		m_quadAttenFactor;
 
 // static class members
 	static Fl_Menu_Item menuitems[];
@@ -59,9 +67,13 @@ private:
 	static void cb_about(Fl_Menu_* o, void* v);
 
 	static void cb_exit2(Fl_Widget* o, void* v);
-
+		
+	//Sliders
 	static void cb_sizeSlides(Fl_Widget* o, void* v);
 	static void cb_depthSlides(Fl_Widget* o, void* v);
+	static void cb_constAttenSlides(Fl_Widget* o, void* v);
+	static void cb_linearAttenSlides(Fl_Widget* o, void* v);
+	static void cb_quadAttenSlides(Fl_Widget* o, void* v);
 
 	static void cb_render(Fl_Widget* o, void* v);
 	static void cb_stop(Fl_Widget* o, void* v);

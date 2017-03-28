@@ -39,7 +39,15 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		// more steps: add in the contributions from reflected and refracted
 		// rays.
 
+
+
 		const Material& m = i.getMaterial();
+
+		////RECURSION HERE
+		//ray reflRay = r;
+		//ray refrRay = r;
+		//vec3f reflectionColor = traceRay(scene, reflRay,thresh, depth + 1);
+		//vec3f refractionColor = traceRay(scene, refrRay,thresh, depth + 1);
 		return m.shade(scene, r, i);
 	
 	} else {
@@ -82,6 +90,11 @@ double RayTracer::aspectRatio()
 bool RayTracer::sceneLoaded()
 {
 	return m_bSceneLoaded;
+}
+
+Scene * RayTracer::getScene()
+{
+	return this->scene;
 }
 
 bool RayTracer::loadScene( char* fn )
