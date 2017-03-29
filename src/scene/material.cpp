@@ -42,7 +42,7 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 		vec3f V = -r.getDirection();
 		vec3f R = 2 * (V*i.N)*i.N - V;
 		vec3f Diffuse = kd*max(0.0, L*i.N);
-		vec3f Specular = ks*pow(max(0.0,V*R), shininess*64);
+		vec3f Specular = ks*pow(max(0.0,V*R), shininess*128);
 		vec3f Attenuation = (*j)->distanceAttenuation(P)*elementMulti((*j)->shadowAttenuation(P), (*j)->getColor(P));
 		I = I + elementMulti(Attenuation,Diffuse+Specular);
 	}

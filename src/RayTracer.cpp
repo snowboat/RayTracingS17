@@ -48,7 +48,7 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		reflecRay.setPosition(r.at(i.t));
 		reflecRay.setDirection(    (r.getDirection().normalize() + i.N.normalize()).normalize()   );
 		vec3f reflecColor = { 0.0f,0.0f,0.0f };
-		if (depth < this->depthLimit) {
+		if (depth < depthLimit) {
 			reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1), i.getMaterial().kr);
 		}
 
@@ -73,8 +73,7 @@ RayTracer::RayTracer()
 	scene = NULL;
 
 	m_bSceneLoaded = false;
-
-	this->depthLimit = 0;
+	depthLimit = 0;
 }
 
 
@@ -107,8 +106,10 @@ Scene * RayTracer::getScene()
 }
 
 void RayTracer::setDepthLimit(int depthLim)
-{
-	this->depthLimit = depthLim;
+{   
+	if (depthLimit != depthLim) {
+		depthLimit = depthLim;
+	}
 }
 
 bool RayTracer::loadScene( char* fn )

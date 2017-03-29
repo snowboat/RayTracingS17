@@ -98,7 +98,6 @@ void TraceUI::cb_depthSlides(Fl_Widget* o, void* v)
 	((TraceUI*)(o->user_data()))->m_nDepth=int( ((Fl_Slider *)o)->value() ) ;
 	TraceUI* pUI = (TraceUI*)(o->user_data());
 	pUI->m_nDepth = int(((Fl_Slider *)o)->value());
-	pUI->raytracer->setDepthLimit(pUI->m_nDepth);
 }
 
 void TraceUI::cb_constAttenSlides(Fl_Widget * o, void * v)
@@ -142,11 +141,13 @@ void TraceUI::cb_render(Fl_Widget* o, void* v)
 	if (pUI->raytracer->sceneLoaded()) {
 		int width=pUI->getSize();
 		int	height = (int)(width / pUI->raytracer->aspectRatio() + 0.5);
+		int depth = pUI->getDepth();
 		pUI->m_traceGlWindow->resizeWindow( width, height );
 
 		pUI->m_traceGlWindow->show();
 
 		pUI->raytracer->traceSetup(width, height);
+		pUI->raytracer->setDepthLimit(depth);
 		
 		// Save the window label
 		const char *old_label = pUI->m_traceGlWindow->label();
@@ -258,9 +259,6 @@ TraceUI::TraceUI() {
 	m_constAttenFactor = 1.0;
 	m_linearAttenFactor = 1.0;
 	m_quadAttenFactor = 1.0;
-	this->raytracer->setDepthLimit(m_nDepth);
-
-
 
 	m_mainWindow = new Fl_Window(100, 40, 400, 400, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
