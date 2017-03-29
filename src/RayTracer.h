@@ -27,11 +27,14 @@ public:
 	bool sceneLoaded();
 	Scene* getScene();
 
+	void setDepthLimit(int depthLim);
+
 private:
 	unsigned char *buffer;
 	int buffer_width, buffer_height;
 	int bufferSize;
 	Scene *scene;
+	int depthLimit;
 
 	bool m_bSceneLoaded;
 };

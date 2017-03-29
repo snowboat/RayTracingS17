@@ -43,12 +43,19 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 
 		const Material& m = i.getMaterial();
 
-		////RECURSION HERE
-		//ray reflRay = r;
-		//ray refrRay = r;
-		//vec3f reflectionColor = traceRay(scene, reflRay,thresh, depth + 1);
-		//vec3f refractionColor = traceRay(scene, refrRay,thresh, depth + 1);
-		return m.shade(scene, r, i);
+		//Reflection component
+		ray reflecRay = r; 
+		reflecRay.setPosition(r.at(i.t));
+		reflecRay.setDirection(    (r.getDirection().normalize() + i.N.normalize()).normalize()   );
+		vec3f reflecColor = { 0.0f,0.0f,0.0f };
+		if (depth <= this->depthLimit) {
+			reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1), i.getMaterial().kr);
+		}
+
+		//TODO: Refractive component
+
+		
+		return m.shade(scene, r, i) + reflecColor;
 	
 	} else {
 		// No intersection.  This ray travels to infinity, so we color
@@ -66,6 +73,8 @@ RayTracer::RayTracer()
 	scene = NULL;
 
 	m_bSceneLoaded = false;
+
+	this->depthLimit = 0;
 }
 
 
@@ -95,6 +104,11 @@ bool RayTracer::sceneLoaded()
 Scene * RayTracer::getScene()
 {
 	return this->scene;
+}
+
+void RayTracer::setDepthLimit(int depthLim)
+{
+	this->depthLimit = depthLim;
 }
 
 bool RayTracer::loadScene( char* fn )

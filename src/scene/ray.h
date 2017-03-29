@@ -30,7 +30,9 @@ public:
 	{ return p + (t*d); }
 
 	vec3f getPosition() const { return p; }
+	void setPosition(vec3f pp) { this->p = pp; }
 	vec3f getDirection() const { return d; }
+	void setDirection(vec3f dd) { this->d = dd; }
 
 protected:
 	vec3f p;
@@ -81,7 +83,7 @@ public:
 public:
     const SceneObject 	*obj;
     double t;
-    vec3f N;
+    vec3f N;			//normal vector
     Material *material;         // if this intersection has its own material
                                 // (as opposed to one in its associated object)
                                 // as in the case where the material was interpolated
