@@ -48,7 +48,7 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		reflecRay.setPosition(r.at(i.t));
 		reflecRay.setDirection(    (r.getDirection().normalize() + i.N.normalize()).normalize()   );
 		vec3f reflecColor = { 0.0f,0.0f,0.0f };
-		if (depth <= this->depthLimit) {
+		if (depth < this->depthLimit) {
 			reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1), i.getMaterial().kr);
 		}
 
