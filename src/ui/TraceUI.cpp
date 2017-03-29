@@ -97,7 +97,8 @@ void TraceUI::cb_depthSlides(Fl_Widget* o, void* v)
 {
 	((TraceUI*)(o->user_data()))->m_nDepth=int( ((Fl_Slider *)o)->value() ) ;
 	TraceUI* pUI = (TraceUI*)(o->user_data());
-	pUI->raytracer->setDepthLimit(int(((Fl_Slider *)o)->value()));
+	pUI->m_nDepth = int(((Fl_Slider *)o)->value());
+	pUI->raytracer->setDepthLimit(pUI->m_nDepth);
 }
 
 void TraceUI::cb_constAttenSlides(Fl_Widget * o, void * v)
