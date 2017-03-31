@@ -39,23 +39,21 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		// more steps: add in the contributions from reflected and refracted
 		// rays.
 
-
-
 		const Material& m = i.getMaterial();
 
 		//Reflection component
-		ray reflecRay = r; 
+		ray reflecRay = r;
 		reflecRay.setPosition(r.at(i.t));
-		reflecRay.setDirection(    (r.getDirection().normalize() + i.N.normalize()).normalize()   );
+		reflecRay.setDirection((2 * (-r.getDirection()*i.N)*i.N + r.getDirection()).normalize());
 		vec3f reflecColor = { 0.0f,0.0f,0.0f };
 		if (depth < depthLimit) {
-			reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1), i.getMaterial().kr);
+			reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1), m.kr);
 		}
 
 		//TODO: Refractive component
 
 		
-		return m.shade(scene, r, i) + reflecColor;
+		return prod(vec3f(1.0f,1.0f,1.0f)-m.kt ,m.shade(scene, r, i)) + reflecColor;
 	
 	} else {
 		// No intersection.  This ray travels to infinity, so we color
