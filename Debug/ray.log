@@ -1,4 +1,3 @@
-﻿  RayTracer.cpp
-c:\users\samuel he\source\repos\raytracings17\src\fileio\parse.h(180): warning C4018: '<': signed/unsigned mismatch
-  ray.vcxproj -> C:\Users\Samuel He\Source\Repos\RayTracingS17\.\Debug\ray.exe
+﻿  material.cpp
+  ray.vcxproj -> C:\Users\Shirley\Documents\GitHub\RayTracingS17\.\Debug\ray.exe
   ray.vcxproj -> .\Debug/ray.pdb (Full PDB)

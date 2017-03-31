@@ -42,17 +42,15 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		// more steps: add in the contributions from reflected and refracted
 		// rays.
 
-
-
 		const Material& m = i.getMaterial();
 
 		//Reflection component
-		ray reflecRay = r; 
+		ray reflecRay = r;
 		reflecRay.setPosition(r.at(i.t));
-		reflecRay.setDirection(    (r.getDirection().normalize() + i.N.normalize()).normalize()   );
+		reflecRay.setDirection((2 * (-r.getDirection()*i.N)*i.N + r.getDirection()).normalize());
 		vec3f reflecColor = { 0.0f,0.0f,0.0f };
 		if (depth < depthLimit) {
-			reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1, fromAir), i.getMaterial().kr);
+			reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1), m.kr);
 		}
 
 		//TODO: Refractive component
