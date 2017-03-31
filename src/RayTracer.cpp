@@ -8,6 +8,9 @@
 #include "scene/ray.h"
 #include "fileio/read.h"
 #include "fileio/parse.h"
+#include <math.h> 
+
+const double PI = 3.14159265358979323846264338327950288;
 
 // Trace a top-level ray through normalized window coordinates (x,y)
 // through the projection plane, and out into the scene.  All we do is
@@ -17,13 +20,13 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 {
     ray r( vec3f(0,0,0), vec3f(0,0,0) );
     scene->getCamera()->rayThrough( x,y,r );
-	return traceRay( scene, r, vec3f(1.0,1.0,1.0), 0 ).clamp();
+	return traceRay( scene, r, vec3f(1.0,1.0,1.0), 0, true ).clamp();
 }
 
 // Do recursive ray tracing!  You'll want to insert a lot of code here
 // (or places called from here) to handle reflection, refraction, etc etc.
 vec3f RayTracer::traceRay( Scene *scene, const ray& r, 
-	const vec3f& thresh, int depth )
+	const vec3f& thresh, int depth, bool fromAir )
 {
 	isect i;
 
@@ -49,13 +52,48 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		reflecRay.setDirection(    (r.getDirection().normalize() + i.N.normalize()).normalize()   );
 		vec3f reflecColor = { 0.0f,0.0f,0.0f };
 		if (depth < depthLimit) {
-			reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1), i.getMaterial().kr);
+			reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1, fromAir), i.getMaterial().kr);
 		}
 
 		//TODO: Refractive component
+		ray refracRay = r;
+		refracRay.setPosition(r.at(i.t));
+		double yeetat = 0.0;
+		if (fromAir) {
+			double gammai = 1;
+			double yeetai = acos(-r.getDirection()*i.N);
+			double gammat = i.getMaterial().index;
+			yeetat = asin(gammai*sin(yeetai) / gammat);
 
-		
-		return m.shade(scene, r, i) + reflecColor;
+			vec3f rayProjNor = ((r.getDirection().normalize())* i.N) * i.N;	//projection of ray onto the normal
+			vec3f horDirection = r.getDirection() - rayProjNor;	//unit vector in horizontal direction
+			horDirection = horDirection.normalize();
+			vec3f verDirection = -i.N.normalize();
+			
+			refracRay.setDirection((horDirection*sin(yeetat) + verDirection * cos(yeetat)).normalize());
+
+		}
+		else {
+			double gammai = m.index;
+			double gammat = 1;
+			double yeetai = acos(-r.getDirection() * i.N);
+			yeetat = asin(gammat*sin(yeetai) / gammai);
+			
+			vec3f rayProjNor = ((r.getDirection().normalize())* i.N) * i.N;	//projection of ray onto the normal
+
+			vec3f horDir = r.getDirection() - rayProjNor;
+			horDir = horDir.normalize();
+			vec3f verDir = -i.N.normalize();
+			refracRay.setDirection((horDir*sin(yeetat) + verDir * cos(yeetat)).normalize());
+			cout << refracRay.getDirection() << endl;
+		}
+		vec3f refracColor = { 0.0f, 0.0f, 0.0f };
+		if (depth < depthLimit && yeetat > 0 && yeetat < PI/2) {
+			refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, !fromAir), i.getMaterial().kt);
+			//cout << refracColor << endl;
+		}
+
+		return prod(m.shade(scene, r, i),(vec3f(1.0f,1.0f,1.0f)-m.kt)) +reflecColor + refracColor;
 	
 	} else {
 		// No intersection.  This ray travels to infinity, so we color
