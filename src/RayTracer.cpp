@@ -31,6 +31,8 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 	isect i;
 
 	if( scene->intersect( r, i ) ) {
+		vec3f normalVector = { i.N[0], i.N[1], i.N[2] };	//copy the normal Vector
+
 		// YOUR CODE HERE
 
 		// An intersection occured!  We've got work to do.  For now,
@@ -43,55 +45,64 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		// rays.
 
 		const Material& m = i.getMaterial();
-
+		if (i.N * r.getDirection() < RAY_EPSILON )
+			cout << "Congratulations: dot product is negative " << i.N * r.getDirection() << "is the dot product " << endl;
+		
 		//Reflection component
 		ray reflecRay = r;
 		reflecRay.setPosition(r.at(i.t));
 		reflecRay.setDirection((2 * (-r.getDirection()*i.N)*i.N + r.getDirection()).normalize());
 		vec3f reflecColor = { 0.0f,0.0f,0.0f };
 		if (depth < depthLimit) {
-			reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1), m.kr);
+			reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1,fromAir), m.kr);
 		}
+
+
+
+
+
 
 		//TODO: Refractive component
 		ray refracRay = r;
 		refracRay.setPosition(r.at(i.t));
 		double yeetat = 0.0;
-		if (fromAir) {
-			double gammai = 1;
-			double yeetai = acos(-r.getDirection()*i.N);
-			double gammat = i.getMaterial().index;
-			yeetat = asin(gammai*sin(yeetai) / gammat);
+		double yeetai = acos(abs(r.getDirection() * normalVector));
+		vec3f rayProjNor = (r.getDirection()* (-normalVector)) * -normalVector;	//projection of ray onto the normal
 
-			vec3f rayProjNor = ((r.getDirection().normalize())* i.N) * i.N;	//projection of ray onto the normal
+		if (fromAir) {	//Air into object
+			double gammai = 1.0;
+			double gammat = m.index;
+			//cout << yeetai *180 / PI << "yeetai" << endl;
+			if (yeetai > 0) {
+				yeetat = asin(gammai*sin(yeetai) / gammat);	//Snell's Law
+				cout << "yeetat : " << yeetat << endl;
+			}
+
+
 			vec3f horDirection = r.getDirection() - rayProjNor;	//unit vector in horizontal direction
 			horDirection = horDirection.normalize();
-			vec3f verDirection = -i.N.normalize();
-			
+			vec3f verDirection = -normalVector;
 			refracRay.setDirection((horDirection*sin(yeetat) + verDirection * cos(yeetat)).normalize());
-
+			cout << acos(refracRay.getDirection() * r.getDirection()) *180 / PI<< endl;
 		}
-		else {
+		else {			//leave object back into air
 			double gammai = m.index;
-			double gammat = 1;
-			double yeetai = acos(-r.getDirection() * i.N);
-			yeetat = asin(gammat*sin(yeetai) / gammai);
+			double gammat = 1.0 ;
+			if (yeetai > 0)
+				yeetat = asin(gammai*sin(yeetai) / gammat);
 			
-			vec3f rayProjNor = ((r.getDirection().normalize())* i.N) * i.N;	//projection of ray onto the normal
 
 			vec3f horDir = r.getDirection() - rayProjNor;
 			horDir = horDir.normalize();
-			vec3f verDir = -i.N.normalize();
-			refracRay.setDirection((horDir*sin(yeetat) + verDir * cos(yeetat)).normalize());
-			cout << refracRay.getDirection() << endl;
+			vec3f verDir = -normalVector.normalize();
+			refracRay.setDirection(     (  horDir*sin(yeetat) + verDir * cos(yeetat)).normalize()    );
 		}
 		vec3f refracColor = { 0.0f, 0.0f, 0.0f };
 		if (depth < depthLimit && yeetat > 0 && yeetat < PI/2) {
-			refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, !fromAir), i.getMaterial().kt);
-			//cout << refracColor << endl;
+			refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, !fromAir), m.kt);
 		}
 
-		return prod(m.shade(scene, r, i),(vec3f(1.0f,1.0f,1.0f)-m.kt)) +reflecColor + refracColor;
+		return prod(m.shade(scene, r, i),(vec3f(1.0f,1.0f,1.0f)-m.kt)) +reflecColor+refracColor;
 	
 	} else {
 		// No intersection.  This ray travels to infinity, so we color

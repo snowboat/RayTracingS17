@@ -19,6 +19,7 @@ directional_light
 
 // Sphere acts as a lens
 scale(0.2, 1.5, 1.5, sphere {
+//scale(0.2, 1.5, 1.5, box {
 	material = { 
 		diffuse = (0, 0.4, 0);
 		transmissive = (0.7, 0.7, 0.7);

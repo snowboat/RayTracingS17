@@ -134,9 +134,6 @@
     <ClInclude Include="src\fileio\read.h">
       <Filter>Header Files\fileio.</Filter>
     </ClInclude>
-    <ClInclude Include="src\vecmath\vecmath.h">
-      <Filter>Header Files\vecmath.</Filter>
-    </ClInclude>
     <ClInclude Include="src\scene\camera.h">
       <Filter>Header Files\scene.</Filter>
     </ClInclude>
@@ -169,6 +166,9 @@
     </ClInclude>
     <ClInclude Include="src\SceneObjects\trimesh.h">
       <Filter>Header Files\SceneObjects.</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vecmath\vecmath.h">
+      <Filter>Header Files\vecmath.</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
