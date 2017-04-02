@@ -31,8 +31,6 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 	isect i;
 
 	if( scene->intersect( r, i ) ) {
-		vec3f normalVector = { i.N[0], i.N[1], i.N[2] };	//copy the normal Vector
-
 		// YOUR CODE HERE
 
 		// An intersection occured!  We've got work to do.  For now,
@@ -45,30 +43,34 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		// rays.
 
 		const Material& m = i.getMaterial();
-		if (i.N * r.getDirection() < RAY_EPSILON )
-			cout << "Congratulations: dot product is negative " << i.N * r.getDirection() << "is the dot product " << endl;
 		
-		//Reflection component
-		ray reflecRay = r;
-		reflecRay.setPosition(r.at(i.t));
-		reflecRay.setDirection((2 * (-r.getDirection()*i.N)*i.N + r.getDirection()).normalize());
+		// Reflection component
+		ray reflecRay(r.at(i.t),(2 * (i.N.dot(-r.getDirection()))*i.N + r.getDirection()).normalize());
 		vec3f reflecColor = { 0.0f,0.0f,0.0f };
 		if (depth < depthLimit) {
 			reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1,fromAir), m.kr);
 		}
 
-
-
-
-
-
-		//TODO: Refractive component
-		ray refracRay = r;
-		refracRay.setPosition(r.at(i.t));
-		double yeetat = 0.0;
-		double yeetai = acos(abs(r.getDirection() * normalVector));
-		vec3f rayProjNor = (r.getDirection()* (-normalVector)) * -normalVector;	//projection of ray onto the normal
-
+		// Refractive component
+		double mu = 1.0;
+		if (fromAir) {	  //Air into object
+			mu = 1.0 / m.index;
+		}
+		else {
+			mu = m.index;
+		}
+		double cosphi = i.N.dot(-r.getDirection());
+		double costheta = pow(1 - mu*mu*(1 - cosphi*cosphi), 0.5);
+		vec3f newDirection = (mu * r.getDirection() - (costheta + mu*cosphi) * i.N).normalize();
+		// vec3f newDirection = (mu * r.getDirection() + (mu*cosphi - costheta) * i.N).normalize();  // paper from greve
+		cout << depth << " " << mu << " " << acos(cosphi)*180/PI << " " << acos(costheta) * 180 / PI << endl;
+		ray refracRay(r.at(i.t), newDirection);
+		vec3f refracColor = { 0.0f, 0.0f, 0.0f };
+		if (depth < depthLimit && costheta > 0) {
+			refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, !fromAir), m.kt);
+		}
+		
+		/*
 		if (fromAir) {	//Air into object
 			double gammai = 1.0;
 			double gammat = m.index;
@@ -101,8 +103,8 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		if (depth < depthLimit && yeetat > 0 && yeetat < PI/2) {
 			refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, !fromAir), m.kt);
 		}
-
-		return prod(m.shade(scene, r, i),(vec3f(1.0f,1.0f,1.0f)-m.kt)) +reflecColor+refracColor;
+		*/
+		return prod(m.shade(scene, r, i),(vec3f(1.0f,1.0f,1.0f)-m.kt))+reflecColor+refracColor;
 	
 	} else {
 		// No intersection.  This ray travels to infinity, so we color
