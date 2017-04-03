@@ -12,6 +12,13 @@
 
 const double PI = 3.14159265358979323846264338327950288;
 
+double degreeRadian(vec3f v1, vec3f v2) {
+	vec3f v1n = v1.normalize();
+	vec3f v2n = v2.normalize();
+	
+	return acos(v1n*v2n);
+}
+
 // Trace a top-level ray through normalized window coordinates (x,y)
 // through the projection plane, and out into the scene.  All we do is
 // enter the main ray-tracing method, getting things started by plugging
@@ -43,7 +50,8 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		// rays.
 
 		const Material& m = i.getMaterial();
-		
+		cout << "dotproduct " << i.N.dot(-r.getDirection()) << endl;
+
 		// Reflection component
 		ray reflecRay(r.at(i.t),(2 * (i.N.dot(-r.getDirection()))*i.N + r.getDirection()).normalize());
 		vec3f reflecColor = { 0.0f,0.0f,0.0f };
@@ -52,6 +60,7 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		}
 
 		// Refractive component
+		
 		double mu = 1.0;
 		if (fromAir) {	  //Air into object
 			mu = 1.0 / m.index;
@@ -59,51 +68,69 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		else {
 			mu = m.index;
 		}
-		double cosphi = i.N.dot(-r.getDirection());
-		double costheta = pow(1 - mu*mu*(1 - cosphi*cosphi), 0.5);
-		vec3f newDirection = (mu * r.getDirection() - (costheta + mu*cosphi) * i.N).normalize();
-		// vec3f newDirection = (mu * r.getDirection() + (mu*cosphi - costheta) * i.N).normalize();  // paper from greve
-		cout << depth << " " << mu << " " << acos(cosphi)*180/PI << " " << acos(costheta) * 180 / PI << endl;
-		ray refracRay(r.at(i.t), newDirection);
-		vec3f refracColor = { 0.0f, 0.0f, 0.0f };
-		if (depth < depthLimit && costheta > 0) {
-			refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, !fromAir), m.kt);
-		}
+		double criticalSin =	1/mu;	//sine of critical angle
+
 		
-		/*
-		if (fromAir) {	//Air into object
-			double gammai = 1.0;
-			double gammat = m.index;
-			//cout << yeetai *180 / PI << "yeetai" << endl;
-			if (yeetai > 0) {
-				yeetat = asin(gammai*sin(yeetai) / gammat);	//Snell's Law
-				cout << "yeetat : " << yeetat << endl;
-			}
-
-
-			vec3f horDirection = r.getDirection() - rayProjNor;	//unit vector in horizontal direction
-			horDirection = horDirection.normalize();
-			vec3f verDirection = -normalVector;
-			refracRay.setDirection((horDirection*sin(yeetat) + verDirection * cos(yeetat)).normalize());
-			cout << acos(refracRay.getDirection() * r.getDirection()) *180 / PI<< endl;
-		}
-		else {			//leave object back into air
-			double gammai = m.index;
-			double gammat = 1.0 ;
-			if (yeetai > 0)
-				yeetat = asin(gammai*sin(yeetai) / gammat);
-			
-
-			vec3f horDir = r.getDirection() - rayProjNor;
-			horDir = horDir.normalize();
-			vec3f verDir = -normalVector.normalize();
-			refracRay.setDirection(     (  horDir*sin(yeetat) + verDir * cos(yeetat)).normalize()    );
-		}
+		double cosphi = i.N.dot(-r.getDirection());
+		//cout << "dot product is " << (i.N * (-r.getDirection())) << endl;
+		double phi = acos(cosphi);
 		vec3f refracColor = { 0.0f, 0.0f, 0.0f };
-		if (depth < depthLimit && yeetat > 0 && yeetat < PI/2) {
-			refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, !fromAir), m.kt);
+
+		if (sin(phi) >= criticalSin) {
+			cout << "TIR occurs " << fromAir << phi << endl;
 		}
-		*/
+
+		if ( criticalSin - sin(phi) > RAY_EPSILON) {	//no TIR
+			
+			double theta = asin(sin(phi) * mu);
+			double costheta = cos(theta);
+										
+			//double costheta = sqrt(1 - mu*mu*(1 - cosphi*cosphi));
+			vec3f newDirection = (mu * r.getDirection() - (costheta - mu*cosphi) * i.N).normalize();
+			// vec3f newDirection = (mu * r.getDirection() + (mu*cosphi - costheta) * i.N).normalize();  // paper from greve
+			//THE TYPO ON ALAN WATT..... EXCITING!!!!!
+
+			//cout << depth << " " << mu << " " << acos(cosphi) * 180 / PI << " " << acos(costheta) * 180 / PI << endl;
+			ray refracRay(r.at(i.t), newDirection);
+
+			if (depth < depthLimit) {
+				refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, !fromAir), m.kt);
+			}
+		}
+
+		
+		//
+		//ray rafracRay = r;
+		//vec3f refracColor = { 0.0f,0.0f,0.0f };
+		//rafracRay.setPosition(r.at(i.t));
+		//double mu = 0.0;
+		//if (fromAir) {
+		//	mu = 1.0 / m.index;
+		//}
+		//else {
+		//	mu = m.index;
+		//}
+		//double fai = degreeRadian(-r.getDirection(), i.N);
+		////double costheta = sqrt(1 - mu*mu*(1 - cos(fai)));//the equation given on the course page is wrong again.... exciting!!!
+		//double costheta = sqrt(1 - mu*mu*(1 - cos(fai) * cos(fai)));
+		//cout << "===" << endl;
+		//cout << "material index: " << m.index << endl;
+		//cout << fai * 180 / PI << "f costheta" << acos(costheta) * 180 / PI << endl;
+		////vec3f refracDir = mu*r.getDirection() - (costheta + mu*cos(fai))*i.N;alan watt this book.... exciting!!!
+		//vec3f refracDir = mu*r.getDirection() - (costheta - mu*cos(fai))*i.N;
+		//refracDir = refracDir.normalize();
+		//cout << degreeRadian(refracDir, r.getDirection()) * 180 / PI << endl;
+		//rafracRay.setDirection(refracDir);
+		//if (depth < depthLimit && costheta >0) {	//no TIR
+		//	refracColor = prod(traceRay(scene, rafracRay, thresh, depth + 1, !fromAir), m.kt);
+		//}
+
+
+
+
+
+		
+		
 		return prod(m.shade(scene, r, i),(vec3f(1.0f,1.0f,1.0f)-m.kt))+reflecColor+refracColor;
 	
 	} else {

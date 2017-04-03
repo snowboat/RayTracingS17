@@ -28,7 +28,8 @@ bool Sphere::intersectLocal( const ray& r, isect& i ) const
 		i.N = r.at( t1 ).normalize();
 	} else {
 		i.t = t2;
-		i.N = r.at( t2 ).normalize();
+		//i.N = r.at(t2).normalize();
+		i.N = -r.at( t2 ).normalize();
 	}
 
 	return true;
