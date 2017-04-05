@@ -38,6 +38,9 @@ public:
 	Fl_Slider*			m_quadAttenSlider;
 
 	Fl_Light_Button*	m_enableBackgroundButton;
+	Fl_Light_Button*	m_enableAntialiasingButton;
+	Fl_Slider*			m_numSubPixelsSlider;
+
 
 
 	Fl_Button*			m_renderButton;
@@ -55,6 +58,8 @@ public:
 
 	unsigned char* backgroundImg;	//for bonus
 	bool		getEnableBackground();
+	bool		getEnableAntialiasing();
+	int			getNumSubpixels();
 
 
 private:
@@ -65,8 +70,10 @@ private:
 	double		m_constAttenFactor;
 	double		m_linearAttenFactor;
 	double		m_quadAttenFactor;
+	int			m_numSubPixels;
 
 	bool		m_enableBackground;
+	bool		m_enableAntialiasing;
 
 
 // static class members
@@ -89,6 +96,8 @@ private:
 	static void cb_linearAttenSlides(Fl_Widget* o, void* v);
 	static void cb_quadAttenSlides(Fl_Widget* o, void* v);
 	static void cb_enableBackground(Fl_Widget* o, void* v);
+	static void cb_enableAntialiasing(Fl_Widget* o, void* v);
+	static void cb_numSubPixelsSlides(Fl_Widget* o, void* v);
 
 	static void cb_render(Fl_Widget* o, void* v);
 	static void cb_stop(Fl_Widget* o, void* v);

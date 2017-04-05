@@ -255,10 +255,29 @@ void RayTracer::tracePixel( int i, int j )
 	if( !scene )
 		return;
 
-	double x = double(i)/double(buffer_width);
-	double y = double(j)/double(buffer_height);
+	double x = double(i) / double(buffer_width);	//central x
+	double y = double(j) / double(buffer_height);	//central y
 
-	col = trace( scene,x,y );
+	
+	if (!m_pUI->getEnableAntialiasing()) {	//only return color of central x & central y
+		col = trace(scene, x, y);
+	}
+	else {
+		int numSubpixels = m_pUI->getNumSubpixels();
+		double startx = x - 0.5 / double(buffer_width);
+		double starty = y - 0.5 / double(buffer_height);
+
+		double xstep = (1.0 / double(buffer_width)) / double(numSubpixels - 1);
+		double ystep =( 1.0 / double(buffer_height)) / double(numSubpixels - 1);
+
+		for (int i = 0; i < numSubpixels; i++) {
+			for (int j = 0; j < numSubpixels; j++) {
+				col +=  trace(scene, startx + xstep*i, starty + ystep*j) / (numSubpixels*numSubpixels);
+			}
+		}
+
+	}
+
 
 	unsigned char *pixel = this->buffer + ( i + j * buffer_width ) * 3;
 

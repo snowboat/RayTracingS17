@@ -165,6 +165,19 @@ void TraceUI::cb_enableBackground(Fl_Widget* o, void* v)
 	pUI-> m_enableBackground= bool(((Fl_Light_Button *)o)->value());
 }
 
+void TraceUI::cb_enableAntialiasing(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+
+	pUI->m_enableAntialiasing = bool(((Fl_Light_Button *)o)->value());
+}
+
+void TraceUI::cb_numSubPixelsSlides(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+	pUI->m_numSubPixels = int(((Fl_Slider *)o)->value());
+}
+
 
 void TraceUI::cb_render(Fl_Widget* o, void* v)
 {
@@ -283,6 +296,16 @@ bool TraceUI::getEnableBackground()
 	return m_enableBackground;
 }
 
+bool TraceUI::getEnableAntialiasing()
+{
+	return m_enableAntialiasing;
+}
+
+int TraceUI::getNumSubpixels()
+{
+	return this->m_numSubPixels;
+}
+
 // menu definition
 Fl_Menu_Item TraceUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
@@ -308,6 +331,8 @@ TraceUI::TraceUI() {
 	m_quadAttenFactor = 1.0;
 	backgroundImg = NULL;
 	m_enableBackground = false;
+	m_enableAntialiasing = false;
+	m_numSubPixels = 2;
 
 	m_mainWindow = new Fl_Window(100, 40, 400, 400, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
@@ -383,13 +408,32 @@ TraceUI::TraceUI() {
 		m_constAttenSlider->callback(cb_quadAttenSlides);
 
 		//use background image or not
-		m_enableBackgroundButton = new Fl_Light_Button(10, 155, 150, 25, "&Background?");
+		m_enableBackgroundButton = new Fl_Light_Button(10, 155, 100, 25, "&Background?");
 		m_enableBackgroundButton->user_data((void*)(this));   // record self to be used by static callback functions
 		m_enableBackgroundButton->value(m_enableBackground);
 		m_enableBackgroundButton->callback(cb_enableBackground);
 		m_enableBackgroundButton->deactivate();
 
 
+		//use background image or not
+		m_enableAntialiasingButton = new Fl_Light_Button(110, 155, 100, 25, "&Antialiasing?");
+		m_enableAntialiasingButton->user_data((void*)(this));   // record self to be used by static callback functions
+		m_enableAntialiasingButton->value(m_enableAntialiasing);
+		m_enableAntialiasingButton->callback(cb_enableAntialiasing);
+		m_enableAntialiasingButton->activate();
+
+		//Control Antialiasing Sub-pixels
+		m_constAttenSlider = new Fl_Value_Slider(10, 180, 180, 20, "# of subpixels");
+		m_constAttenSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_constAttenSlider->type(FL_HOR_NICE_SLIDER);
+		m_constAttenSlider->labelfont(FL_COURIER);
+		m_constAttenSlider->labelsize(12);
+		m_constAttenSlider->minimum(2);
+		m_constAttenSlider->maximum(5);
+		m_constAttenSlider->step(1);
+		m_constAttenSlider->value(m_numSubPixels);
+		m_constAttenSlider->align(FL_ALIGN_RIGHT);
+		m_constAttenSlider->callback(cb_numSubPixelsSlides);
 
 		m_renderButton = new Fl_Button(240, 27, 70, 25, "&Render");
 		m_renderButton->user_data((void*)(this));
