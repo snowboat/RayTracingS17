@@ -165,6 +165,13 @@ void TraceUI::cb_enableBackground(Fl_Widget* o, void* v)
 	pUI-> m_enableBackground= bool(((Fl_Light_Button *)o)->value());
 }
 
+void TraceUI::cb_enableJittering(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+
+	pUI->m_enableJittering = bool(((Fl_Light_Button *)o)->value());
+}
+
 void TraceUI::cb_enableAntialiasing(Fl_Widget * o, void * v)
 {
 	TraceUI* pUI = (TraceUI*)(o->user_data());
@@ -301,6 +308,11 @@ bool TraceUI::getEnableAntialiasing()
 	return m_enableAntialiasing;
 }
 
+bool TraceUI::getEnableJittering()
+{
+	return this->m_enableJittering;
+}
+
 int TraceUI::getNumSubpixels()
 {
 	return this->m_numSubPixels;
@@ -333,6 +345,7 @@ TraceUI::TraceUI() {
 	m_enableBackground = false;
 	m_enableAntialiasing = false;
 	m_numSubPixels = 2;
+	m_enableJittering = false;
 
 	m_mainWindow = new Fl_Window(100, 40, 400, 400, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
@@ -416,11 +429,18 @@ TraceUI::TraceUI() {
 
 
 		//use background image or not
-		m_enableAntialiasingButton = new Fl_Light_Button(110, 155, 100, 25, "&Antialiasing?");
+		m_enableAntialiasingButton = new Fl_Light_Button(115, 155, 100, 25, "&Antialiasing?");
 		m_enableAntialiasingButton->user_data((void*)(this));   // record self to be used by static callback functions
 		m_enableAntialiasingButton->value(m_enableAntialiasing);
 		m_enableAntialiasingButton->callback(cb_enableAntialiasing);
 		m_enableAntialiasingButton->activate();
+
+		//use background image or not
+		m_enableJitteringButton = new Fl_Light_Button(220, 155, 100, 25, "&Jittering?");
+		m_enableJitteringButton->user_data((void*)(this));   // record self to be used by static callback functions
+		m_enableJitteringButton->value(m_enableJittering);
+		m_enableJitteringButton->callback(cb_enableJittering);
+		m_enableJitteringButton->activate();
 
 		//Control Antialiasing Sub-pixels
 		m_constAttenSlider = new Fl_Value_Slider(10, 180, 180, 20, "# of subpixels");

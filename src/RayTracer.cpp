@@ -257,10 +257,17 @@ void RayTracer::tracePixel( int i, int j )
 
 	double x = double(i) / double(buffer_width);	//central x
 	double y = double(j) / double(buffer_height);	//central y
-
+	double atomicx = double(1) / double(buffer_width);	//corresponding length of one pixel
+	double atomicy = double(1) / double(buffer_height);
 	
 	if (!m_pUI->getEnableAntialiasing()) {	//only return color of central x & central y
-		col = trace(scene, x, y);
+		if (m_pUI->getEnableJittering()) {
+			double offsetCoeff = ((double)rand() / (RAND_MAX)) * 2 - 1;
+			col = trace(scene, x+offsetCoeff*atomicx, y+offsetCoeff*atomicy);//the point to trace is a random point between x,y plus/minus one atomic length
+		}
+		else {
+			col = trace(scene, x, y);
+		}
 	}
 	else {
 		int numSubpixels = m_pUI->getNumSubpixels();
@@ -272,10 +279,15 @@ void RayTracer::tracePixel( int i, int j )
 
 		for (int i = 0; i < numSubpixels; i++) {
 			for (int j = 0; j < numSubpixels; j++) {
-				col +=  trace(scene, startx + xstep*i, starty + ystep*j) / (numSubpixels*numSubpixels);
+				if (m_pUI->getEnableJittering()) {	//random direction witin +- one atomic range
+					double offsetCoeff = ((double)rand() / (RAND_MAX)) * 2 - 1;
+					col = trace(scene, startx + xstep*i + offsetCoeff*atomicx, starty + ystep*j + offsetCoeff*atomicy);//the point to trace is a random point between x,y plus/minus one atomic length
+				}
+				else {//determined direction
+					col += trace(scene, startx + xstep*i, starty + ystep*j) / (numSubpixels*numSubpixels);
+				}
 			}
 		}
-
 	}
 
 

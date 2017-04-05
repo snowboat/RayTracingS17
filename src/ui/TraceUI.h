@@ -39,6 +39,7 @@ public:
 
 	Fl_Light_Button*	m_enableBackgroundButton;
 	Fl_Light_Button*	m_enableAntialiasingButton;
+	Fl_Light_Button*	m_enableJitteringButton;
 	Fl_Slider*			m_numSubPixelsSlider;
 
 
@@ -59,6 +60,7 @@ public:
 	unsigned char* backgroundImg;	//for bonus
 	bool		getEnableBackground();
 	bool		getEnableAntialiasing();
+	bool		getEnableJittering();
 	int			getNumSubpixels();
 
 
@@ -74,6 +76,7 @@ private:
 
 	bool		m_enableBackground;
 	bool		m_enableAntialiasing;
+	bool		m_enableJittering;
 
 
 // static class members
@@ -96,6 +99,7 @@ private:
 	static void cb_linearAttenSlides(Fl_Widget* o, void* v);
 	static void cb_quadAttenSlides(Fl_Widget* o, void* v);
 	static void cb_enableBackground(Fl_Widget* o, void* v);
+	static void cb_enableJittering(Fl_Widget* o, void* v);
 	static void cb_enableAntialiasing(Fl_Widget* o, void* v);
 	static void cb_numSubPixelsSlides(Fl_Widget* o, void* v);
 
