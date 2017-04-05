@@ -39,6 +39,9 @@ void TraceUI::cb_load_scene(Fl_Menu_* o, void* v)
 			pUI->raytracer->getScene()->constAttenFactor = pUI->m_constAttenFactor;
 			pUI->raytracer->getScene()->linearAttenFactor = pUI->m_linearAttenFactor;
 			pUI->raytracer->getScene()->quadAttenFactor = pUI->m_quadAttenFactor;
+
+			//share the texture image to the scene
+			pUI->raytracer->getScene()->setTexture(pUI->textureImg);
 		} else{
 			sprintf(buf, "Ray <Not Loaded>");
 		}
@@ -80,6 +83,31 @@ void TraceUI::cb_load_background(Fl_Menu_ * o, void * v)
 		pUI->m_enableBackgroundButton->activate();
 	}
 
+
+}
+
+void TraceUI::cb_load_texture(Fl_Menu_ * o, void * v)
+{
+	TraceUI* pUI = whoami(o);
+
+	char* newfile = fl_file_chooser("Load Texture", "*.bmp", NULL);
+
+	if (newfile) {
+		unsigned char* data;
+		int width, height;
+		if ((data = readBMP(newfile, width, height)) == NULL)
+		{
+			fl_alert("Can't load bitmap file");
+			return;
+		}
+
+		pUI->textureImg = data;
+		pUI->m_enableTextureMappingButton->activate();
+		//initialize or update the existing texture in the current scene, keep them synced
+		if (pUI->raytracer->sceneLoaded()) {
+			pUI->raytracer->getScene()->setTexture(pUI->textureImg);
+		}
+	}
 
 }
 
@@ -177,6 +205,13 @@ void TraceUI::cb_enableAntialiasing(Fl_Widget * o, void * v)
 	TraceUI* pUI = (TraceUI*)(o->user_data());
 
 	pUI->m_enableAntialiasing = bool(((Fl_Light_Button *)o)->value());
+}
+
+void TraceUI::cb_enableTextureMapping(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+
+	pUI->m_enableTextureMapping = bool(((Fl_Light_Button *)o)->value());
 }
 
 void TraceUI::cb_numSubPixelsSlides(Fl_Widget * o, void * v)
@@ -313,6 +348,11 @@ bool TraceUI::getEnableJittering()
 	return this->m_enableJittering;
 }
 
+bool TraceUI::getEnableTextureMapping()
+{
+	return this->m_enableTextureMapping;
+}
+
 int TraceUI::getNumSubpixels()
 {
 	return this->m_numSubPixels;
@@ -324,6 +364,7 @@ Fl_Menu_Item TraceUI::menuitems[] = {
 		{ "&Load Scene...",	FL_ALT + 'l', (Fl_Callback *)TraceUI::cb_load_scene },
 		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback *)TraceUI::cb_save_image },
 		{ "&Load Background...",	FL_ALT + 's', (Fl_Callback *)TraceUI::cb_load_background },
+		{ "&Load Texture...",	FL_ALT + 's', (Fl_Callback *)TraceUI::cb_load_texture },
 		{ "&Exit",			FL_ALT + 'e', (Fl_Callback *)TraceUI::cb_exit },
 		{ 0 },
 
@@ -346,6 +387,7 @@ TraceUI::TraceUI() {
 	m_enableAntialiasing = false;
 	m_numSubPixels = 2;
 	m_enableJittering = false;
+	m_enableTextureMapping = false;
 
 	m_mainWindow = new Fl_Window(100, 40, 400, 400, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
@@ -428,19 +470,26 @@ TraceUI::TraceUI() {
 		m_enableBackgroundButton->deactivate();
 
 
-		//use background image or not
+		//use antialiasing image or not
 		m_enableAntialiasingButton = new Fl_Light_Button(115, 155, 100, 25, "&Antialiasing?");
 		m_enableAntialiasingButton->user_data((void*)(this));   // record self to be used by static callback functions
 		m_enableAntialiasingButton->value(m_enableAntialiasing);
 		m_enableAntialiasingButton->callback(cb_enableAntialiasing);
 		m_enableAntialiasingButton->activate();
 
-		//use background image or not
+		//use jittering or not
 		m_enableJitteringButton = new Fl_Light_Button(220, 155, 100, 25, "&Jittering?");
 		m_enableJitteringButton->user_data((void*)(this));   // record self to be used by static callback functions
 		m_enableJitteringButton->value(m_enableJittering);
 		m_enableJitteringButton->callback(cb_enableJittering);
 		m_enableJitteringButton->activate();
+
+		//use texture mapping image or not
+		m_enableTextureMappingButton = new Fl_Light_Button(10, 205, 100, 25, "&TextureMapping?");
+		m_enableTextureMappingButton->user_data((void*)(this));   // record self to be used by static callback functions
+		m_enableTextureMappingButton->value(m_enableTextureMapping);
+		m_enableTextureMappingButton->callback(cb_enableTextureMapping);
+		m_enableTextureMappingButton->deactivate();
 
 		//Control Antialiasing Sub-pixels
 		m_constAttenSlider = new Fl_Value_Slider(10, 180, 180, 20, "# of subpixels");

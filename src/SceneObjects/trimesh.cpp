@@ -26,6 +26,11 @@ void Trimesh::addNormal( const vec3f &n )
     normals.push_back( n );
 }
 
+bool Trimesh::getLocalUV(const ray & r, const isect & i, double & u, double & v) const
+{
+	return false;
+}
+
 // Returns false if the vertices a,b,c don't all exist
 bool Trimesh::addFace( int a, int b, int c )
 {
@@ -140,6 +145,11 @@ bool TrimeshFace::intersectLocal( const ray& r, isect& i ) const
     }
     
     return true;
+}
+
+bool TrimeshFace::getLocalUV(const ray & r, const isect & i, double & u, double & v) const
+{
+	return false;
 }
 
 void

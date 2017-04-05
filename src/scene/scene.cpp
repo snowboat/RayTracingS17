@@ -84,7 +84,7 @@ bool Geometry::intersect(const ray&r, isect&i) const
 
     ray localRay( pos, dir );
 
-    if (intersectLocal(localRay, i)) {
+    if (intersectLocal(localRay, i)) {	//send this iscet point to the intersect local function.
         // Transform the intersection point & normal returned back into global space.
 		i.N = transform->localToGlobalCoordsNormal(i.N);
 		i.t /= length;
@@ -98,8 +98,10 @@ bool Geometry::intersect(const ray&r, isect&i) const
 
 bool Geometry::intersectLocal( const ray& r, isect& i ) const
 {
-	return false;
+	return false;	//this method is gonna be overwritten by Geometry's subclasses.
 }
+
+
 
 bool Geometry::hasBoundingBoxCapability() const
 {
@@ -199,6 +201,16 @@ void Scene::initScene()
 		else
 			nonboundedobjects.push_back(*j);
 	}
+}
+
+void Scene::setTexture(unsigned char * tex)
+{
+	this->textureImg = tex;
+}
+
+unsigned char * Scene::getTexture()
+{
+	return this->textureImg;
 }
 
 

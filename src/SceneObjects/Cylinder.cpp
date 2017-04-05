@@ -20,6 +20,11 @@ bool Cylinder::intersectLocal( const ray& r, isect& i ) const
 	}
 }
 
+bool Cylinder::getLocalUV(const ray & r, const isect & i, double & u, double & v) const
+{
+	return false;
+}
+
 bool Cylinder::intersectBody( const ray& r, isect& i ) const
 {
 	double x0 = r.getPosition()[0];

@@ -16,6 +16,7 @@ using namespace std;
 #include "material.h"
 #include "camera.h"
 #include "../vecmath/vecmath.h"
+#include <vector>
 
 class Light;
 class Scene;
@@ -206,28 +207,34 @@ protected:
 // world.  It has extent (its Geometry heritage) and surface properties
 // (its material binding).  The decision of how to store that material
 // is left up to the subclass.
-class SceneObject
-	: public Geometry
+class SceneObject: public Geometry
 {
 public:
 	virtual const Material& getMaterial() const = 0;
 	virtual void setMaterial( Material *m ) = 0;
+	virtual bool getLocalUV(const ray& r, const isect& i, double& u, double& v) const = 0;	// returns true only if this sceneobject supports texture mapping
+
 
 protected:
 	SceneObject( Scene *scene )
 		: Geometry( scene ) {}
 };
 
+
+
+
+
+
 // A simple extension of SceneObject that adds an instance of Material
 // for simple material bindings.
-class MaterialSceneObject
-	: public SceneObject
+class MaterialSceneObject: public SceneObject
 {
 public:
 	virtual ~MaterialSceneObject() { if( material ) delete material; }
 
 	virtual const Material& getMaterial() const { return *material; }
 	virtual void setMaterial( Material *m )	{ material = m; }
+	virtual bool getLocalUV(const ray& r, const isect& i, double& u, double& v) const = 0;	// returns true only if this sceneobject supports texture mapping
 
 protected:
 	MaterialSceneObject( Scene *scene, Material *mat ) 
@@ -237,6 +244,18 @@ protected:
 
 	Material *material;
 };
+
+
+
+
+
+
+
+
+
+
+
+
 
 class Scene
 {
@@ -258,6 +277,7 @@ public:
 		constAttenFactor = 1.0;
 		linearAttenFactor = 1.0;
 		quadAttenFactor = 1.0;
+		textureImg = NULL;
 	}
 	virtual ~Scene();
 
@@ -280,8 +300,8 @@ public:
 	double constAttenFactor;
 	double linearAttenFactor;
 	double quadAttenFactor;
-
-	
+	void setTexture(unsigned char* tex);
+	unsigned char* getTexture();
 
 private:
     list<Geometry*> objects;
@@ -289,7 +309,8 @@ private:
 	list<Geometry*> boundedobjects;
     list<Light*> lights;
     Camera camera;
-	
+	unsigned char* textureImg;	//texture image, shared with the one loaded to Trace UI
+
 	// Each object in the scene, provided that it has hasBoundingBoxCapability(),
 	// must fall within this bounding box.  Objects that don't have hasBoundingBoxCapability()
 	// are exempt from this requirement.

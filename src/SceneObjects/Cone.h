@@ -22,6 +22,8 @@ public:
 
 	virtual bool intersectLocal( const ray& r, isect& i ) const;
 	virtual bool hasBoundingBoxCapability() const { return true; }
+	virtual bool getLocalUV(const ray& r, const isect& i, double& u, double& v) const;	// returns true only if this sceneobject supports texture mapping
+
 
     virtual BoundingBox ComputeLocalBoundingBox()
     {

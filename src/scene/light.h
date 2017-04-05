@@ -16,7 +16,7 @@ protected:
 	Light( Scene *scene, const vec3f& col )
 		: SceneElement( scene ), color( col ) {}
 
-	vec3f 		color;
+	vec3f 		color;	//intensity of light
 };
 
 class DirectionalLight

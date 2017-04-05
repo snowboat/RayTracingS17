@@ -53,7 +53,7 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		// rays.
 
 		const Material& m = i.getMaterial();
-		cout << "dotproduct " << i.N.dot(-r.getDirection()) << endl;
+		//cout << "dotproduct " << i.N.dot(-r.getDirection()) << endl;
 
 		// Reflection component
 		ray reflecRay(r.at(i.t),(2 * (i.N.dot(-r.getDirection()))*i.N + r.getDirection()).normalize());
@@ -91,8 +91,7 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 				refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, !fromAir, xcoord,ycoord), m.kt);
 			}
 		}
-		
-		return prod(m.shade(scene, r, i),(vec3f(1.0f,1.0f,1.0f)-m.kt))+reflecColor+refracColor;
+			return prod(m.shade(scene, r, i, m_pUI->getEnableTextureMapping()), (vec3f(1.0f, 1.0f, 1.0f) - m.kt)) + reflecColor + refracColor;
 	
 	} else {
 		// No intersection.  This ray travels to infinity, so we color

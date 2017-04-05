@@ -21,6 +21,11 @@ bool Cone::intersectLocal( const ray& r, isect& i ) const
 	}
 }
 
+bool Cone::getLocalUV(const ray & r, const isect & i, double & u, double & v) const
+{
+	return false;
+}
+
 
 bool Cone::intersectBody( const ray& r, isect& i ) const
 {

@@ -37,3 +37,8 @@ bool Square::intersectLocal( const ray& r, isect& i ) const
 
 	return true;
 }
+
+bool Square::getLocalUV(const ray & r, const isect & i, double & u, double & v) const
+{
+	return false;
+}

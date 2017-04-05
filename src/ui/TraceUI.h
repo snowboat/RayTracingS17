@@ -40,6 +40,7 @@ public:
 	Fl_Light_Button*	m_enableBackgroundButton;
 	Fl_Light_Button*	m_enableAntialiasingButton;
 	Fl_Light_Button*	m_enableJitteringButton;
+	Fl_Light_Button*	m_enableTextureMappingButton;
 	Fl_Slider*			m_numSubPixelsSlider;
 
 
@@ -58,9 +59,11 @@ public:
 	int			getDepth();
 
 	unsigned char* backgroundImg;	//for bonus
+	unsigned char* textureImg;	//for bonus
 	bool		getEnableBackground();
 	bool		getEnableAntialiasing();
 	bool		getEnableJittering();
+	bool		getEnableTextureMapping();
 	int			getNumSubpixels();
 
 
@@ -77,6 +80,7 @@ private:
 	bool		m_enableBackground;
 	bool		m_enableAntialiasing;
 	bool		m_enableJittering;
+	bool		m_enableTextureMapping;
 
 
 // static class members
@@ -87,6 +91,7 @@ private:
 	static void cb_load_scene(Fl_Menu_* o, void* v);
 	static void cb_save_image(Fl_Menu_* o, void* v);
 	static void cb_load_background(Fl_Menu_* o, void* v);
+	static void cb_load_texture(Fl_Menu_* o, void* v);
 	static void cb_exit(Fl_Menu_* o, void* v);
 	static void cb_about(Fl_Menu_* o, void* v);
 
@@ -101,6 +106,7 @@ private:
 	static void cb_enableBackground(Fl_Widget* o, void* v);
 	static void cb_enableJittering(Fl_Widget* o, void* v);
 	static void cb_enableAntialiasing(Fl_Widget* o, void* v);
+	static void cb_enableTextureMapping(Fl_Widget* o, void* v);
 	static void cb_numSubPixelsSlides(Fl_Widget* o, void* v);
 
 	static void cb_render(Fl_Widget* o, void* v);
