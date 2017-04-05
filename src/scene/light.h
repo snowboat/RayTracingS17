@@ -52,4 +52,23 @@ protected:
 	vec3f position;
 };
 
+//class SpotLight : public Light {
+//public: 
+//	SpotLight(Scene* scene, const vec3f& pos, const vec3f& color, double& ang) :
+//		Light(scene, color), position(pos), angle(ang) {}
+//
+//
+//};
+
+class SpotLight : public PointLight {
+public:
+	SpotLight(Scene* scene, const vec3f& pos, const vec3f& color, const double& ang, const vec3f& centralDir):
+		PointLight(scene, pos, color), angle(ang), centralDirection(centralDir.normalize()){}
+	virtual vec3f getColor(const vec3f& p) const;
+
+protected:
+	double angle;	//the range of angle within which the Spot Light is considered bright.
+	vec3f centralDirection;	//self-explanatory
+};
+
 #endif // __LIGHT_H__

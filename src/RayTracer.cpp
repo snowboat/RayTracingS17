@@ -98,7 +98,7 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		// No intersection.  This ray travels to infinity, so we color
 		// it according to the background color, which in this (simple) case
 		// is just black.
-		if (this->backgroundImg == NULL) {
+		if (this->backgroundImg == NULL || !m_pUI->getEnableBackground()) {
 			return vec3f(0.0f, 0.0f, 0.0f);
 		}
 		else {
@@ -122,6 +122,7 @@ RayTracer::RayTracer()
 	m_bSceneLoaded = false;
 	depthLimit = 0;
 	backgroundImg = NULL;
+	m_pUI = NULL;
 }
 
 
@@ -181,6 +182,11 @@ vec3f RayTracer::getBackgroundColor(double x, double y)
 		return vec3f((float)r/float(255), (float)g/255.0f, (float)b/255.0f).clamp();
 		//return vec3f(0.5f, 0.5f, 0.5f).clamp();
 	}
+}
+
+void RayTracer::setUI(TraceUI * ui)
+{
+	m_pUI = ui;
 }
 
 bool RayTracer::loadScene( char* fn )

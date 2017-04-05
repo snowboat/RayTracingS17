@@ -16,6 +16,8 @@
 
 #include "../RayTracer.h"
 
+class RayTracer;
+
 class TraceGLWindow : public Fl_Gl_Window
 {
 public:
@@ -23,7 +25,7 @@ public:
 	void draw();
 	int handle(int event);
 
-	RayTracer *raytracer;
+	RayTracer* raytracer;
 
 	void refresh();
 

@@ -5,6 +5,8 @@
 
 #include "scene/scene.h"
 #include "scene/ray.h"
+#include "ui\TraceUI.h"
+class TraceUI;
 
 class RayTracer
 {
@@ -30,7 +32,7 @@ public:
 	void setDepthLimit(int depthLim);
 
 	vec3f getBackgroundColor(double x, double y);
-
+	void setUI(TraceUI* ui);
 private:
 	unsigned char *buffer;
 	int buffer_width, buffer_height;
@@ -40,6 +42,8 @@ private:
 	unsigned char* backgroundImg;
 
 	bool m_bSceneLoaded;
+
+	TraceUI* m_pUI;
 };
 
 #endif // __RAYTRACER_H__

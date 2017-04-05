@@ -87,3 +87,14 @@ vec3f PointLight::shadowAttenuation(const vec3f& P) const
 	}
     return vec3f(1,1,1);
 }
+
+vec3f SpotLight::getColor(const vec3f & p) const
+{
+	vec3f link = (p-this->position).normalize();
+	if (acos(centralDirection * link) < angle) {
+		return color;
+	}
+	else {
+		return vec3f(0.0f, 0.0f, 0.0f);
+	}
+}

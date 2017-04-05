@@ -77,6 +77,7 @@ void TraceUI::cb_load_background(Fl_Menu_ * o, void * v)
 		}
 
 		pUI->backgroundImg = data;
+		pUI->m_enableBackgroundButton->activate();
 	}
 
 
@@ -157,6 +158,14 @@ void TraceUI::cb_quadAttenSlides(Fl_Widget * o, void * v)
 
 }
 
+void TraceUI::cb_enableBackground(Fl_Widget* o, void* v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+
+	pUI-> m_enableBackground= bool(((Fl_Light_Button *)o)->value());
+}
+
+
 void TraceUI::cb_render(Fl_Widget* o, void* v)
 {
 	char buffer[256];
@@ -166,6 +175,9 @@ void TraceUI::cb_render(Fl_Widget* o, void* v)
 	if (pUI->raytracer->sceneLoaded()) {
 		//set background img for RayTracer
 		pUI->raytracer->setBackgroundImg(pUI->backgroundImg);
+
+		//set the linked ui of raytracer to be me
+		pUI->raytracer->setUI(pUI);
 
 
 		int width=pUI->getSize();
@@ -266,6 +278,11 @@ int TraceUI::getDepth()
 	return m_nDepth;
 }
 
+bool TraceUI::getEnableBackground()
+{
+	return m_enableBackground;
+}
+
 // menu definition
 Fl_Menu_Item TraceUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
@@ -290,6 +307,7 @@ TraceUI::TraceUI() {
 	m_linearAttenFactor = 1.0;
 	m_quadAttenFactor = 1.0;
 	backgroundImg = NULL;
+	m_enableBackground = false;
 
 	m_mainWindow = new Fl_Window(100, 40, 400, 400, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
@@ -363,6 +381,13 @@ TraceUI::TraceUI() {
 		m_constAttenSlider->value(m_quadAttenFactor);
 		m_constAttenSlider->align(FL_ALIGN_RIGHT);
 		m_constAttenSlider->callback(cb_quadAttenSlides);
+
+		//use background image or not
+		m_enableBackgroundButton = new Fl_Light_Button(10, 155, 150, 25, "&Background?");
+		m_enableBackgroundButton->user_data((void*)(this));   // record self to be used by static callback functions
+		m_enableBackgroundButton->value(m_enableBackground);
+		m_enableBackgroundButton->callback(cb_enableBackground);
+		m_enableBackgroundButton->deactivate();
 
 
 
