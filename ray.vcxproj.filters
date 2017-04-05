@@ -63,12 +63,6 @@
     <ClCompile Include="src\RayTracer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ui\TraceGLWindow.cpp">
-      <Filter>Source Files\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ui\TraceUI.cpp">
-      <Filter>Source Files\ui</Filter>
-    </ClCompile>
     <ClCompile Include="src\fileio\bitmap.cpp">
       <Filter>Source Files\fileio</Filter>
     </ClCompile>
@@ -114,16 +108,16 @@
     <ClCompile Include="src\SceneObjects\trimesh.cpp">
       <Filter>Source Files\SceneObjects</Filter>
     </ClCompile>
+    <ClCompile Include="src\ui\TraceGLWindow.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\TraceUI.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\RayTracer.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ui\TraceGLWindow.h">
-      <Filter>Header Files\ui.</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ui\TraceUI.h">
-      <Filter>Header Files\ui.</Filter>
     </ClInclude>
     <ClInclude Include="src\fileio\bitmap.h">
       <Filter>Header Files\fileio.</Filter>
@@ -169,6 +163,12 @@
     </ClInclude>
     <ClInclude Include="src\vecmath\vecmath.h">
       <Filter>Header Files\vecmath.</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\TraceGLWindow.h">
+      <Filter>Header Files\ui.</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\TraceUI.h">
+      <Filter>Header Files\ui.</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

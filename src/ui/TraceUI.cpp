@@ -57,6 +57,31 @@ void TraceUI::cb_save_image(Fl_Menu_* o, void* v)
 	}
 }
 
+void TraceUI::cb_load_background(Fl_Menu_ * o, void * v)
+{
+	TraceUI* pUI = whoami(o);
+
+	char* newfile = fl_file_chooser("Load Background", "*.bmp", NULL);
+
+	if (newfile) {
+		unsigned char* data;
+		int width, height;
+		if ((data = readBMP(newfile, width, height)) == NULL)
+		{
+			fl_alert("Can't load bitmap file");
+			return;
+		}
+		if (width != pUI->getSize() || height != pUI->getSize()) {
+			fl_alert("size doesn't match");
+			return;
+		}
+
+		pUI->backgroundImg = data;
+	}
+
+
+}
+
 void TraceUI::cb_exit(Fl_Menu_* o, void* v)
 {
 	TraceUI* pUI=whoami(o);
@@ -139,6 +164,10 @@ void TraceUI::cb_render(Fl_Widget* o, void* v)
 	TraceUI* pUI=((TraceUI*)(o->user_data()));
 	
 	if (pUI->raytracer->sceneLoaded()) {
+		//set background img for RayTracer
+		pUI->raytracer->setBackgroundImg(pUI->backgroundImg);
+
+
 		int width=pUI->getSize();
 		int	height = (int)(width / pUI->raytracer->aspectRatio() + 0.5);
 		int depth = pUI->getDepth();
@@ -242,6 +271,7 @@ Fl_Menu_Item TraceUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
 		{ "&Load Scene...",	FL_ALT + 'l', (Fl_Callback *)TraceUI::cb_load_scene },
 		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback *)TraceUI::cb_save_image },
+		{ "&Load Background...",	FL_ALT + 's', (Fl_Callback *)TraceUI::cb_load_background },
 		{ "&Exit",			FL_ALT + 'e', (Fl_Callback *)TraceUI::cb_exit },
 		{ 0 },
 
@@ -259,6 +289,7 @@ TraceUI::TraceUI() {
 	m_constAttenFactor = 1.0;
 	m_linearAttenFactor = 1.0;
 	m_quadAttenFactor = 1.0;
+	backgroundImg = NULL;
 
 	m_mainWindow = new Fl_Window(100, 40, 400, 400, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions

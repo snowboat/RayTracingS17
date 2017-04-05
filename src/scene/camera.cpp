@@ -14,15 +14,14 @@ Camera::Camera()
     look = vec3f( 0,0,-1 );
 }
 
-void
-Camera::rayThrough( double x, double y, ray &r )
+void Camera::rayThrough( double x, double y, ray &r )
 // Ray through normalized window point x,y.  In normalized coordinates
-// the camera's x and y vary both vary from 0 to 1.
+// the camera's x and y both vary from 0 to 1.
 {
     x -= 0.5;
     y -= 0.5;
-    vec3f dir = look + x * u + y * v;
-    r = ray( eye, dir.normalize() );
+    vec3f dir = look + x * u + y * v;	//direction of ray
+    r = ray( eye, dir.normalize() );	//updates the r passed in by reference.
 }
 
 void
@@ -81,6 +80,26 @@ Camera::setAspectRatio( double ar )
 {
     aspectRatio = ar;
     update();
+}
+
+vec3f Camera::getu()
+{
+	return u;
+}
+
+vec3f Camera::getv()
+{
+	return v;
+}
+
+vec3f Camera::getlook()
+{
+	return look;
+}
+
+vec3f Camera::getEye()
+{
+	return eye;
 }
 
 void

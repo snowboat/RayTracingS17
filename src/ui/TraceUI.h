@@ -15,6 +15,7 @@
 #include <FL/Fl_Button.H>
 
 #include <FL/fl_file_chooser.H>		// FLTK file chooser
+#include "../fileio/bitmap.h"
 
 #include "TraceGLWindow.h"
 #include "../scene/light.h"
@@ -47,6 +48,9 @@ public:
 	int			getSize();
 	int			getDepth();
 
+	unsigned char* backgroundImg;	//for bonus
+
+
 private:
 	RayTracer*	raytracer;
 
@@ -56,6 +60,7 @@ private:
 	double		m_linearAttenFactor;
 	double		m_quadAttenFactor;
 
+
 // static class members
 	static Fl_Menu_Item menuitems[];
 
@@ -63,6 +68,7 @@ private:
 
 	static void cb_load_scene(Fl_Menu_* o, void* v);
 	static void cb_save_image(Fl_Menu_* o, void* v);
+	static void cb_load_background(Fl_Menu_* o, void* v);
 	static void cb_exit(Fl_Menu_* o, void* v);
 	static void cb_about(Fl_Menu_* o, void* v);
 

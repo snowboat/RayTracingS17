@@ -16,6 +16,11 @@ public:
 	
 
     double getAspectRatio() { return aspectRatio; }
+
+	vec3f getu();
+	vec3f getv();
+	vec3f getlook();
+	vec3f getEye();
 private:
     mat3f m;                     // rotation matrix
     double normalizedHeight;    // dimensions of image place at unit dist from eye

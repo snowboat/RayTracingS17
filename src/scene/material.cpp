@@ -37,10 +37,10 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 	iter j;
 	
 	for (j = scene->beginLights(); j != scene->endLights(); ++j) {
-		vec3f P = r.at(i.t);
-		vec3f L = (*j)->getDirection(P);
-		vec3f V = -r.getDirection();
-		vec3f R = 2 * (-L*i.N)*i.N + L;
+		vec3f P = r.at(i.t);	//position
+		vec3f L = (*j)->getDirection(P);	//direction of light
+		vec3f V = r.getDirection();		//direction of eyeray
+		vec3f R = 2 * (-L*i.N)*i.N + L; //reflection direction of the light
 		vec3f Diffuse = kd*max(0.0, L*i.N);
 		vec3f Specular = ks*pow(max(0.0,V*R), shininess*128);
 		vec3f Attenuation = (*j)->distanceAttenuation(P)*elementMulti((*j)->shadowAttenuation(P), (*j)->getColor(P));

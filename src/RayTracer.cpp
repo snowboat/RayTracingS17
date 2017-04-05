@@ -27,13 +27,16 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 {
     ray r( vec3f(0,0,0), vec3f(0,0,0) );
     scene->getCamera()->rayThrough( x,y,r );
-	return traceRay( scene, r, vec3f(1.0,1.0,1.0), 0, true ).clamp();
+	vec3f tracedColor = traceRay(scene, r, vec3f(1.0, 1.0, 1.0), 0, true, x , y).clamp();
+
+
+	return tracedColor;
 }
 
 // Do recursive ray tracing!  You'll want to insert a lot of code here
 // (or places called from here) to handle reflection, refraction, etc etc.
 vec3f RayTracer::traceRay( Scene *scene, const ray& r, 
-	const vec3f& thresh, int depth, bool fromAir )
+	const vec3f& thresh, int depth, bool fromAir, double xcoord, double ycoord )
 {
 	isect i;
 
@@ -56,7 +59,7 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		ray reflecRay(r.at(i.t),(2 * (i.N.dot(-r.getDirection()))*i.N + r.getDirection()).normalize());
 		vec3f reflecColor = { 0.0f,0.0f,0.0f };
 		if (depth < depthLimit) {
-			reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1,fromAir), m.kr);
+			reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1,fromAir, xcoord, ycoord), m.kr);
 		}
 
 		// Refractive component
@@ -72,64 +75,22 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 
 		
 		double cosphi = i.N.dot(-r.getDirection());
-		//cout << "dot product is " << (i.N * (-r.getDirection())) << endl;
 		double phi = acos(cosphi);
 		vec3f refracColor = { 0.0f, 0.0f, 0.0f };
-
-		if (sin(phi) >= criticalSin) {
-			cout << "TIR occurs " << fromAir << phi << endl;
-		}
-
 		if ( criticalSin - sin(phi) > RAY_EPSILON) {	//no TIR
 			
 			double theta = asin(sin(phi) * mu);
-			double costheta = cos(theta);
-										
-			//double costheta = sqrt(1 - mu*mu*(1 - cosphi*cosphi));
+			double costheta = cos(theta);			
 			vec3f newDirection = (mu * r.getDirection() - (costheta - mu*cosphi) * i.N).normalize();
 			// vec3f newDirection = (mu * r.getDirection() + (mu*cosphi - costheta) * i.N).normalize();  // paper from greve
-			//THE TYPO ON ALAN WATT..... EXCITING!!!!!
-
+			//THE TYPO ON ALAN WATT..... EXCITING!!!!!s
 			//cout << depth << " " << mu << " " << acos(cosphi) * 180 / PI << " " << acos(costheta) * 180 / PI << endl;
 			ray refracRay(r.at(i.t), newDirection);
 
 			if (depth < depthLimit) {
-				refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, !fromAir), m.kt);
+				refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, !fromAir, xcoord,ycoord), m.kt);
 			}
 		}
-
-		
-		//
-		//ray rafracRay = r;
-		//vec3f refracColor = { 0.0f,0.0f,0.0f };
-		//rafracRay.setPosition(r.at(i.t));
-		//double mu = 0.0;
-		//if (fromAir) {
-		//	mu = 1.0 / m.index;
-		//}
-		//else {
-		//	mu = m.index;
-		//}
-		//double fai = degreeRadian(-r.getDirection(), i.N);
-		////double costheta = sqrt(1 - mu*mu*(1 - cos(fai)));//the equation given on the course page is wrong again.... exciting!!!
-		//double costheta = sqrt(1 - mu*mu*(1 - cos(fai) * cos(fai)));
-		//cout << "===" << endl;
-		//cout << "material index: " << m.index << endl;
-		//cout << fai * 180 / PI << "f costheta" << acos(costheta) * 180 / PI << endl;
-		////vec3f refracDir = mu*r.getDirection() - (costheta + mu*cos(fai))*i.N;alan watt this book.... exciting!!!
-		//vec3f refracDir = mu*r.getDirection() - (costheta - mu*cos(fai))*i.N;
-		//refracDir = refracDir.normalize();
-		//cout << degreeRadian(refracDir, r.getDirection()) * 180 / PI << endl;
-		//rafracRay.setDirection(refracDir);
-		//if (depth < depthLimit && costheta >0) {	//no TIR
-		//	refracColor = prod(traceRay(scene, rafracRay, thresh, depth + 1, !fromAir), m.kt);
-		//}
-
-
-
-
-
-		
 		
 		return prod(m.shade(scene, r, i),(vec3f(1.0f,1.0f,1.0f)-m.kt))+reflecColor+refracColor;
 	
@@ -137,8 +98,18 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		// No intersection.  This ray travels to infinity, so we color
 		// it according to the background color, which in this (simple) case
 		// is just black.
+		if (this->backgroundImg == NULL) {
+			return vec3f(0.0f, 0.0f, 0.0f);
+		}
+		else {
 
-		return vec3f( 0.0, 0.0, 0.0 );
+			vec3f camerau = scene->getCamera()->getu();
+			vec3f camerav = scene->getCamera()->getv();
+			double projRayontoU = (r.getDirection() * camerau);
+			double projRayontoV = (r.getDirection() * camerav);
+
+			return getBackgroundColor(projRayontoU+ 0.5, projRayontoV + 0.5);
+		}
 	}
 }
 
@@ -150,6 +121,7 @@ RayTracer::RayTracer()
 
 	m_bSceneLoaded = false;
 	depthLimit = 0;
+	backgroundImg = NULL;
 }
 
 
@@ -181,10 +153,33 @@ Scene * RayTracer::getScene()
 	return this->scene;
 }
 
+void RayTracer::setBackgroundImg(unsigned char * img)
+{
+	this->backgroundImg = img;
+}
+
 void RayTracer::setDepthLimit(int depthLim)
 {   
 	if (depthLimit != depthLim) {
 		depthLimit = depthLim;
+	}
+}
+
+vec3f RayTracer::getBackgroundColor(double x, double y)
+{
+	if (this->backgroundImg == NULL || x<0 || x>1 || y<0 || y>1) {
+		return vec3f(0.0f, 0.0f, 0.0f);
+
+	}
+	else {
+		int pixelx = x*buffer_width;
+		int pixely = y*buffer_height;
+		unsigned char* pixel = backgroundImg + ( pixelx + pixely*buffer_width) * 3;
+		int r = (int)*pixel;
+		int g = (int)*(pixel+1);
+		int b = (int)*(pixel+2);
+		return vec3f((float)r/float(255), (float)g/255.0f, (float)b/255.0f).clamp();
+		//return vec3f(0.5f, 0.5f, 0.5f).clamp();
 	}
 }
 
@@ -249,7 +244,7 @@ void RayTracer::traceLines( int start, int stop )
 
 void RayTracer::tracePixel( int i, int j )
 {
-	vec3f col;
+	vec3f col;	//color of this pixel
 
 	if( !scene )
 		return;
@@ -259,7 +254,7 @@ void RayTracer::tracePixel( int i, int j )
 
 	col = trace( scene,x,y );
 
-	unsigned char *pixel = buffer + ( i + j * buffer_width ) * 3;
+	unsigned char *pixel = this->buffer + ( i + j * buffer_width ) * 3;
 
 	pixel[0] = (int)( 255.0 * col[0]);
 	pixel[1] = (int)( 255.0 * col[1]);

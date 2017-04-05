@@ -55,7 +55,7 @@ Scene *readScene( const string& filename )
 
 Scene *readScene( istream& is )
 {
-	Scene *ret = new Scene;
+	Scene *ret = new Scene;	//the scene to be RETURNED
 	
 	// Extract the file header
 	static const int MAXNAME = 80;
@@ -88,10 +88,10 @@ Scene *readScene( istream& is )
 	}
 
 	// vector<Obj*> result;
-	mmap materials;
+	mmap materials;		//map from string to material*
 
 	while( true ) {
-		Obj *cur = readFile( is );
+		Obj *cur = readFile( is );	//current object being processed
 		if( !cur ) {
 			break;
 		}
@@ -103,10 +103,7 @@ Scene *readScene( istream& is )
 	return ret;
 }
 
-// Find a color field inside some object.  Now, I recognize that not
-// everyone speaks the Queen's English, so I allow both spellings of
-// color.  If you're composing scenes, you don't need to worry about
-// spelling :^)
+// Find a color field inside some object. 
 static Obj *getColorField( Obj *obj )
 {
 	if( obj == NULL ) {
@@ -392,7 +389,7 @@ static void processTrimesh( string name, Obj *child, Scene *scene,
     scene->add(tmesh);
 }
 
-static Material *getMaterial( Obj *child, const mmap& bindings )
+static Material*  getMaterial( Obj *child, const mmap& bindings )
 {
 	string tfield = child->getTypeName();
 	if( tfield == "id" ) {
@@ -469,8 +466,7 @@ static Material *processMaterial( Obj *child, mmap *bindings )
     return mat;
 }
 
-static void
-processCamera( Obj *child, Scene *scene )
+static void processCamera( Obj *child, Scene *scene )
 {
     if( hasField( child, "position" ) )
         scene->getCamera()->setEye( tupleToVec( getField( child, "position" ) ) );

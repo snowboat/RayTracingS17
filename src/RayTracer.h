@@ -13,7 +13,7 @@ public:
     ~RayTracer();
 
     vec3f trace( Scene *scene, double x, double y );
-	vec3f traceRay( Scene *scene, const ray& r, const vec3f& thresh, int depth, bool fromAir );
+	vec3f traceRay( Scene *scene, const ray& r, const vec3f& thresh, int depth, bool fromAir, double xcoord, double ycoord );
 
 
 	void getBuffer( unsigned char *&buf, int &w, int &h );
@@ -26,8 +26,10 @@ public:
 
 	bool sceneLoaded();
 	Scene* getScene();
-
+	void setBackgroundImg(unsigned char* img);
 	void setDepthLimit(int depthLim);
+
+	vec3f getBackgroundColor(double x, double y);
 
 private:
 	unsigned char *buffer;
@@ -35,6 +37,7 @@ private:
 	int bufferSize;
 	Scene *scene;
 	int depthLimit;
+	unsigned char* backgroundImg;
 
 	bool m_bSceneLoaded;
 };
