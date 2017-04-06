@@ -32,7 +32,6 @@ public:
 
 	virtual vec3f shade(Scene *scene, const ray& r, const isect& i) const;
 	virtual vec3f shade(Scene *scene, const ray& r, const isect& i, bool textureMap) const;
-	vec3f getTextureColor(Scene* scene, double x, double y) const;
 
     vec3f ke;                    // emissive
     vec3f ka;                    // ambient

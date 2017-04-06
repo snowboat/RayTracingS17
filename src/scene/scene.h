@@ -306,6 +306,7 @@ public:
 	void setTextureHeight(int h);
 	int getTextureWidth();
 	int getTextureHeight();
+	vec3f getTextureColor(double x, double y);
 
 private:
     list<Geometry*> objects;

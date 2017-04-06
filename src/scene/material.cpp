@@ -5,27 +5,7 @@
 // Apply the phong model to this point on the surface of the object, returning
 // the color of that point.
 
-vec3f Material::getTextureColor(Scene* scene, double x, double y) const
-{
-	if (scene->getTexture() && x>=0 && x<=1 && y>=0 && y<=1){
 
-		int textureWidth = scene->getTextureWidth();
-		int textureHeight = scene->getTextureHeight();
-
-		int pixelx = min(textureWidth-1,int(x*textureWidth));	
-		int pixely = min(textureHeight-1,int(y*textureHeight));	
-		unsigned char* pixel = scene->getTexture() + (pixelx + pixely*textureWidth) * 3;
-		int r = (int)*pixel;
-		int g = (int)*(pixel + 1);
-		int b = (int)*(pixel + 2);
-		return vec3f((float)r/ float(255), (float)g / 255.0f, (float)b / 255.0f).clamp();
-		//return vec3f(0.5f, 0.5f, 0.5f).clamp();
-	}
-	else {
-		cout << "caused by " << x << " " << y << endl;
-		return vec3f(0.0f, 0.0f, 0.0f);
-	}
-}
 
 vec3f elementMulti(vec3f k, vec3f i) {
 	double i0 = k[0] * i[0];
@@ -74,23 +54,14 @@ vec3f Material::shade(Scene * scene, const ray & r, const isect & i, bool textur
 		
 		
 		vec3f Diffuse;
-		if (textureMap) {
-			double u, v;
-			if (i.obj->getLocalUV(r, i, u, v)) {
-				//cout << "u v " << u << "  " << v << endl;
-				Diffuse = getTextureColor(scene, u, v);	//TODO: get the color of texture based on u,v
-				//cout << Diffuse << endl;
-				return Diffuse;
-			}
-			else {
-
-				Diffuse = kd * max(0.0, L*i.N);	//if the shape of i.obj doesn't support texture mapping, then diffuse color is still the original one.
-			}
+		double u, v;
+		if (textureMap && i.obj->getLocalUV(r, i, u, v)) {
+			Diffuse = scene->getTextureColor(u, v);	
 		}
 		else {
-			Diffuse = kd * max(0.0, L*i.N);
-
+			Diffuse = kd * max(0.0, L*i.N);	//if the shape of i.obj doesn't support texture mapping, then diffuse color is still the original one.
 		}
+	
 
 		vec3f Specular = ks*pow(max(0.0, V*R), shininess * 128);
 		vec3f Attenuation = (*j)->distanceAttenuation(P)*   prod((*j)->shadowAttenuation(P), (*j)->getColor(P));

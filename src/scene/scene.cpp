@@ -233,4 +233,25 @@ int Scene::getTextureHeight()
 	return this->textureHeight;
 }
 
+vec3f Scene::getTextureColor(double x, double y)
+{
+	if (this->getTexture() && x >= 0 && x <= 1 && y >= 0 && y <= 1) {
+
+		int textureWidth = this->getTextureWidth();
+		int textureHeight = this->getTextureHeight();
+
+		int pixelx = min(textureWidth - 1, int(x*textureWidth));
+		int pixely = min(textureHeight - 1, int(y*textureHeight));
+		unsigned char* pixel = this->getTexture() + (pixelx + pixely*textureWidth) * 3;
+		int r = (int)*pixel;
+		int g = (int)*(pixel + 1);
+		int b = (int)*(pixel + 2);
+		return vec3f((float)r / float(255), (float)g / 255.0f, (float)b / 255.0f).clamp();
+	}
+	else {
+		//cout << "caused by " << x << " " << y << endl;
+		return vec3f(0.0f, 0.0f, 0.0f);
+	}
+}
+
 
