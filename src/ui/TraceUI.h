@@ -45,6 +45,8 @@ public:
 	Fl_Light_Button*	m_enableDepthofFieldButton;
 	Fl_Slider*			m_focalLengthSlider;
 	Fl_Slider*			m_apertureSlider;
+	Fl_Light_Button*	m_enableSoftShadowButton;
+	Fl_Slider*			m_softshadowCoeffSlider;
 
 
 
@@ -74,7 +76,8 @@ public:
 	int			getNumSubpixels();
 	double		getFocalLength();
 	double		getAperture();
-
+	bool		getEnableSoftShadow();
+	double		getSoftshadowCoeff();
 
 private:
 	RayTracer*	raytracer;
@@ -91,9 +94,11 @@ private:
 	bool		m_enableJittering;
 	bool		m_enableTextureMapping;
 	bool		m_enableDepthofField;
+	bool		m_enableSoftShadow;
 
 	double		focalLength;
 	double		aperture;
+	double		softshadowCoeff;
 
 
 // static class members
@@ -121,9 +126,11 @@ private:
 	static void cb_enableAntialiasing(Fl_Widget* o, void* v);
 	static void cb_enableDepthofField(Fl_Widget* o, void* v);
 	static void cb_enableTextureMapping(Fl_Widget* o, void* v);
+	static void cb_enableSoftShadow(Fl_Widget* o, void* v);
 	static void cb_numSubPixelsSlides(Fl_Widget* o, void* v);
 	static void cb_focalLengthSlides(Fl_Widget* o, void* v);
 	static void cb_apertureSlides(Fl_Widget* o, void* v);
+	static void cb_softshadowCoeffSlides(Fl_Widget* o, void* v);
 
 	static void cb_render(Fl_Widget* o, void* v);
 	static void cb_stop(Fl_Widget* o, void* v);

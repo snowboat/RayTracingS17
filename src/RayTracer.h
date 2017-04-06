@@ -15,7 +15,7 @@ public:
     ~RayTracer();
 
     vec3f trace( Scene *scene, double x, double y );
-	vec3f traceRay( Scene *scene, const ray& r, const vec3f& thresh, int depth, bool fromAir, double xcoord, double ycoord );
+	vec3f traceRay( Scene *scene, const ray& r, const vec3f& thresh, int depth, bool fromAir);
 
 
 	void getBuffer( unsigned char *&buf, int &w, int &h );

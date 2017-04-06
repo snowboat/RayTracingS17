@@ -254,4 +254,24 @@ vec3f Scene::getTextureColor(double x, double y)
 	}
 }
 
+void Scene::setSoftShadow(bool sofSha)
+{
+	this->softShadow = sofSha;
+}
+
+bool Scene::getSoftShadow()
+{
+	return this->softShadow;
+}
+
+void Scene::setSoftShadowCoeff(double coeff)
+{
+	this->softShadowCoeff = coeff;
+}
+
+double Scene::getSoftShadowCoeff()
+{
+	return this->softShadowCoeff;
+}
+
 

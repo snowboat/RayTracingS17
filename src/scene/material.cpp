@@ -64,7 +64,14 @@ vec3f Material::shade(Scene * scene, const ray & r, const isect & i, bool textur
 	
 
 		vec3f Specular = ks*pow(max(0.0, V*R), shininess * 128);
-		vec3f Attenuation = (*j)->distanceAttenuation(P)*   prod((*j)->shadowAttenuation(P), (*j)->getColor(P));
+		vec3f Attenuation;
+		//if soft shadow is enabled, use "soft shadow attenuation" instead.
+		if (scene->getSoftShadow()) {
+			Attenuation = (*j)->distanceAttenuation(P)*   prod( (*j)->shadowAttenuationSoft(P, scene->getSoftShadowCoeff()), (*j)->getColor(P));
+		}
+		else {
+			 Attenuation = (*j)->distanceAttenuation(P)*   prod((*j)->shadowAttenuation(P), (*j)->getColor(P));
+		}
 		I = I + elementMulti(Attenuation, Diffuse + Specular);
 	}
 

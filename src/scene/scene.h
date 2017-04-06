@@ -307,6 +307,10 @@ public:
 	int getTextureWidth();
 	int getTextureHeight();
 	vec3f getTextureColor(double x, double y);
+	void setSoftShadow(bool sofSha);
+	bool getSoftShadow();
+	void setSoftShadowCoeff(double coeff);
+	double getSoftShadowCoeff();
 
 private:
     list<Geometry*> objects;
@@ -317,6 +321,10 @@ private:
 	unsigned char* textureImg;	//texture image, shared with the one loaded to Trace UI
 	int textureWidth;
 	int textureHeight;
+
+	bool	softShadow;
+	double	softShadowCoeff;
+
 	// Each object in the scene, provided that it has hasBoundingBoxCapability(),
 	// must fall within this bounding box.  Objects that don't have hasBoundingBoxCapability()
 	// are exempt from this requirement.

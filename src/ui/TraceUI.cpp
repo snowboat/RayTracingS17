@@ -44,6 +44,11 @@ void TraceUI::cb_load_scene(Fl_Menu_* o, void* v)
 			pUI->raytracer->getScene()->setTexture(pUI->textureImg);
 			pUI->raytracer->getScene()->setTextureWidth(pUI->textureWidth);
 			pUI->raytracer->getScene()->setTextureHeight(pUI->textureHeight);
+
+			//make the "soft shadow or not" consistent between UI and scene
+			pUI->raytracer->getScene()->setSoftShadow(pUI->m_enableSoftShadow);
+			pUI->raytracer->getScene()->setSoftShadowCoeff(pUI->softshadowCoeff);
+
 		} else{
 			sprintf(buf, "Ray <Not Loaded>");
 		}
@@ -228,6 +233,20 @@ void TraceUI::cb_enableTextureMapping(Fl_Widget * o, void * v)
 	pUI->m_enableTextureMapping = bool(((Fl_Light_Button *)o)->value());
 }
 
+void TraceUI::cb_enableSoftShadow(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+
+	pUI->m_enableSoftShadow = bool(((Fl_Light_Button *)o)->value());
+
+	//sync to current scene (if any)
+	if (pUI->raytracer->sceneLoaded()) {
+		pUI->raytracer->getScene()->setSoftShadow(pUI->m_enableSoftShadow);
+	}
+	
+
+}
+
 void TraceUI::cb_numSubPixelsSlides(Fl_Widget * o, void * v)
 {
 	TraceUI* pUI = (TraceUI*)(o->user_data());
@@ -244,6 +263,17 @@ void TraceUI::cb_apertureSlides(Fl_Widget * o, void * v)
 {
 	TraceUI* pUI = (TraceUI*)(o->user_data());
 	pUI->aperture = double(((Fl_Slider *)o)->value());
+}
+
+void TraceUI::cb_softshadowCoeffSlides(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+	pUI->softshadowCoeff = double(((Fl_Slider *)o)->value());
+
+	//sync this value to scene if any
+	if (pUI->raytracer->sceneLoaded()) {
+		pUI->raytracer->getScene()->setSoftShadowCoeff(pUI->softshadowCoeff);
+	}
 }
 
 
@@ -399,6 +429,16 @@ double TraceUI::getAperture()
 	return this->aperture;
 }
 
+bool TraceUI::getEnableSoftShadow()
+{
+	return this->m_enableSoftShadow;
+}
+
+double TraceUI::getSoftshadowCoeff()
+{
+	return this->softshadowCoeff;
+}
+
 // menu definition
 Fl_Menu_Item TraceUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
@@ -435,6 +475,8 @@ TraceUI::TraceUI() {
 	m_enableDepthofField = false;
 	focalLength = 1.0;
 	aperture = 1.0;
+	m_enableSoftShadow = false;
+	softshadowCoeff = 0.9;
 
 	m_mainWindow = new Fl_Window(100, 40, 400, 400, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
@@ -544,6 +586,13 @@ TraceUI::TraceUI() {
 		m_enableDepthofFieldButton->value(m_enableDepthofField);
 		m_enableDepthofFieldButton->callback(cb_enableDepthofField);
 
+
+		//Soft Shadow
+		m_enableSoftShadowButton = new Fl_Light_Button(220, 205, 100, 25, "&Soft Shadow");
+		m_enableSoftShadowButton->user_data((void*)(this));   // record self to be used by static callback functions
+		m_enableSoftShadowButton->value(m_enableSoftShadow);
+		m_enableSoftShadowButton->callback(cb_enableSoftShadow);
+
 		//focal length slider
 		m_focalLengthSlider = new Fl_Value_Slider(10, 230, 180, 20, "Focal length");
 		m_focalLengthSlider->user_data((void*)(this));	// record self to be used by static callback functions
@@ -569,6 +618,19 @@ TraceUI::TraceUI() {
 		m_apertureSlider->value(aperture);
 		m_apertureSlider->align(FL_ALIGN_RIGHT);
 		m_apertureSlider->callback(cb_apertureSlides);
+
+		//focal length slider
+		m_softshadowCoeffSlider = new Fl_Value_Slider(10, 280, 180, 20, "Soft Shadow Coeff");
+		m_softshadowCoeffSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_softshadowCoeffSlider->type(FL_HOR_NICE_SLIDER);
+		m_softshadowCoeffSlider->labelfont(FL_COURIER);
+		m_softshadowCoeffSlider->labelsize(12);
+		m_softshadowCoeffSlider->minimum(0.00);
+		m_softshadowCoeffSlider->maximum(5.00);
+		m_softshadowCoeffSlider->step(0.01);
+		m_softshadowCoeffSlider->value(softshadowCoeff);
+		m_softshadowCoeffSlider->align(FL_ALIGN_RIGHT);
+		m_softshadowCoeffSlider->callback(cb_softshadowCoeffSlides);
 
 
 		//Control Antialiasing Sub-pixels

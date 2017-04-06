@@ -37,6 +37,12 @@ vec3f DirectionalLight::getDirection( const vec3f& P ) const
 	return -orientation;
 }
 
+vec3f DirectionalLight::shadowAttenuationSoft(const vec3f & P, double coeff) const
+{
+	return shadowAttenuation(P);	//NO soft shadow in directional light
+}
+
+
 double PointLight::distanceAttenuation(const vec3f& P) const
 {
 	// YOUR CODE HERE
@@ -63,6 +69,10 @@ vec3f PointLight::getColor( const vec3f& P ) const
 	return color;
 }
 
+
+
+
+
 vec3f PointLight::getDirection( const vec3f& P ) const
 {
 	return (position - P).normalize();
@@ -87,6 +97,21 @@ vec3f PointLight::shadowAttenuation(const vec3f& P) const
 	}
     return vec3f(1,1,1);
 }
+
+vec3f PointLight::shadowAttenuationSoft(const vec3f & P, double coeff) const
+{
+	vec3f attenColor(0.0, 0.0, 0.0);
+	for (int i = 0; i < 150; i++) {
+		double area = coeff;
+		vec3f newPos = position + area * vec3f((double(rand()) / double(RAND_MAX)), (double(rand()) / double(RAND_MAX)), (double(rand()) / double(RAND_MAX)));
+		PointLight newLight(scene, newPos, color);
+		attenColor += newLight.shadowAttenuation(P);
+	}
+	return attenColor / 150;
+}
+
+
+
 
 vec3f SpotLight::getColor(const vec3f & p) const
 {

@@ -29,32 +29,26 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 
 		ray r(vec3f(0, 0, 0), vec3f(0, 0, 0));
 		scene->getCamera()->rayThrough(x, y, r);
-		vec3f tracedColor = traceRay(scene, r, vec3f(1.0, 1.0, 1.0), 0, true, x, y).clamp();
+		vec3f tracedColor = traceRay(scene, r, vec3f(1.0, 1.0, 1.0), 0, true).clamp();
 		return tracedColor;
 	}
 	else {
 		ray primRay(vec3f(0, 0, 0), vec3f(0, 0, 0));
 		scene->getCamera()->rayThrough(x, y, primRay);
-		vec3f tracedColor = traceRay(scene, primRay, vec3f(1.0, 1.0, 1.0), 0, true, x, y).clamp();
-
-		for (int i = 0; i < 3; i++) {	//fire three extra random rays
+		vec3f tracedColor(0.0, 0.0, 0.0);
+		for (int i = 0; i < 100; i++) {	//fire 100 random rays instead of the primary ray
 			double aperture = m_pUI->getAperture();
 			double focalDist = m_pUI->getFocalLength();
 			vec3f camPosition = scene->getCamera()->getEye();
 			vec3f primDir = primRay.getDirection();
 			vec3f focalPoint = camPosition + focalDist * primDir;
-			
-			cout << "randomnumber is " << (double(rand()) / double(RAND_MAX)) << endl;
-			cout << "aperture is " << aperture << endl;
-
-			cout << "offset from pinhole" << (double(rand()) / double(RAND_MAX)) * aperture << endl;
 			vec3f randomPoint = camPosition + (  (double(rand()) / double(RAND_MAX)) * aperture) * scene->getCamera()->getv();
 			vec3f secondaryDir = (focalPoint - randomPoint).normalize();
 			ray secondaryRay(randomPoint, secondaryDir);
-			tracedColor += traceRay(scene, secondaryRay, vec3f(1.0, 1.0, 1.0), 0, true, x, y).clamp();
+			tracedColor += traceRay(scene, secondaryRay, vec3f(1.0, 1.0, 1.0), 0, true).clamp();
 		}
 
-		return tracedColor / 4;
+		return tracedColor / 100.0;
 		
 
 	}
@@ -64,7 +58,7 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 // Do recursive ray tracing!  You'll want to insert a lot of code here
 // (or places called from here) to handle reflection, refraction, etc etc.
 vec3f RayTracer::traceRay( Scene *scene, const ray& r, 
-	const vec3f& thresh, int depth, bool fromAir, double xcoord, double ycoord )
+	const vec3f& thresh, int depth, bool fromAir)
 {
 	isect i;
 
@@ -87,7 +81,7 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		ray reflecRay(r.at(i.t),(2 * (i.N.dot(-r.getDirection()))*i.N + r.getDirection()).normalize());
 		vec3f reflecColor = { 0.0f,0.0f,0.0f };
 		if (depth < depthLimit) {
-			reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1,fromAir, xcoord, ycoord), m.kr);
+			reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1,fromAir), m.kr);
 		}
 
 		// Refractive component
@@ -116,7 +110,7 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 			ray refracRay(r.at(i.t), newDirection);
 
 			if (depth < depthLimit) {
-				refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, !fromAir, xcoord,ycoord), m.kt);
+				refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, !fromAir), m.kt);
 			}
 		}
 			return prod(m.shade(scene, r, i, m_pUI->getEnableTextureMapping()), (vec3f(1.0f, 1.0f, 1.0f) - m.kt)) + reflecColor + refracColor;
