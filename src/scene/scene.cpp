@@ -213,4 +213,24 @@ unsigned char * Scene::getTexture()
 	return this->textureImg;
 }
 
+void Scene::setTextureWidth(int w)
+{
+	this->textureWidth = w;
+}
+
+void Scene::setTextureHeight(int h)
+{
+	textureHeight = h;
+}
+
+int Scene::getTextureWidth()
+{
+	return this->textureWidth;
+}
+
+int Scene::getTextureHeight()
+{
+	return this->textureHeight;
+}
+
 

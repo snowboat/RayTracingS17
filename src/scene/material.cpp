@@ -9,10 +9,12 @@ vec3f Material::getTextureColor(Scene* scene, double x, double y) const
 {
 	if (scene->getTexture() && x>=0 && x<=1 && y>=0 && y<=1){
 
-		//currently I only have one texture, whose size is 1024*1024
-		int pixelx = min(1023,int(x*1024));	//hard-code for now
-		int pixely = min(1023,int(y*1024));	//hard-code for now
-		unsigned char* pixel = scene->getTexture() + (pixelx + pixely*1024) * 3;
+		int textureWidth = scene->getTextureWidth();
+		int textureHeight = scene->getTextureHeight();
+
+		int pixelx = min(textureWidth-1,int(x*textureWidth));	
+		int pixely = min(textureHeight-1,int(y*textureHeight));	
+		unsigned char* pixel = scene->getTexture() + (pixelx + pixely*textureWidth) * 3;
 		int r = (int)*pixel;
 		int g = (int)*(pixel + 1);
 		int b = (int)*(pixel + 2);

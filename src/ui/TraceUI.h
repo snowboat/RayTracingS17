@@ -60,6 +60,9 @@ public:
 
 	unsigned char* backgroundImg;	//for bonus
 	unsigned char* textureImg;	//for bonus
+	int textureWidth;
+	int textureHeight;
+
 	bool		getEnableBackground();
 	bool		getEnableAntialiasing();
 	bool		getEnableJittering();

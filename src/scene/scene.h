@@ -302,6 +302,10 @@ public:
 	double quadAttenFactor;
 	void setTexture(unsigned char* tex);
 	unsigned char* getTexture();
+	void setTextureWidth(int w);
+	void setTextureHeight(int h);
+	int getTextureWidth();
+	int getTextureHeight();
 
 private:
     list<Geometry*> objects;
@@ -310,7 +314,8 @@ private:
     list<Light*> lights;
     Camera camera;
 	unsigned char* textureImg;	//texture image, shared with the one loaded to Trace UI
-
+	int textureWidth;
+	int textureHeight;
 	// Each object in the scene, provided that it has hasBoundingBoxCapability(),
 	// must fall within this bounding box.  Objects that don't have hasBoundingBoxCapability()
 	// are exempt from this requirement.

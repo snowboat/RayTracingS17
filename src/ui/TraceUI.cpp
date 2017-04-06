@@ -42,6 +42,8 @@ void TraceUI::cb_load_scene(Fl_Menu_* o, void* v)
 
 			//share the texture image to the scene
 			pUI->raytracer->getScene()->setTexture(pUI->textureImg);
+			pUI->raytracer->getScene()->setTextureWidth(pUI->textureWidth);
+			pUI->raytracer->getScene()->setTextureHeight(pUI->textureHeight);
 		} else{
 			sprintf(buf, "Ray <Not Loaded>");
 		}
@@ -106,6 +108,11 @@ void TraceUI::cb_load_texture(Fl_Menu_ * o, void * v)
 		//initialize or update the existing texture in the current scene, keep them synced
 		if (pUI->raytracer->sceneLoaded()) {
 			pUI->raytracer->getScene()->setTexture(pUI->textureImg);
+			pUI->textureWidth = width;
+			pUI->textureHeight = height;
+			pUI->raytracer->getScene()->setTextureWidth(width);
+			pUI->raytracer->getScene()->setTextureHeight(height);
+
 		}
 	}
 
@@ -388,6 +395,9 @@ TraceUI::TraceUI() {
 	m_numSubPixels = 2;
 	m_enableJittering = false;
 	m_enableTextureMapping = false;
+	textureImg = NULL;
+	textureHeight = 0;
+	textureWidth = 0;
 
 	m_mainWindow = new Fl_Window(100, 40, 400, 400, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
