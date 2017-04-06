@@ -25,12 +25,40 @@ double degreeRadian(vec3f v1, vec3f v2) {
 // in an initial ray weight of (0.0,0.0,0.0) and an initial recursion depth of 0.
 vec3f RayTracer::trace( Scene *scene, double x, double y )
 {
-    ray r( vec3f(0,0,0), vec3f(0,0,0) );
-    scene->getCamera()->rayThrough( x,y,r );
-	vec3f tracedColor = traceRay(scene, r, vec3f(1.0, 1.0, 1.0), 0, true, x , y).clamp();
+	if (!m_pUI->getEnableDepthofField()) {
 
+		ray r(vec3f(0, 0, 0), vec3f(0, 0, 0));
+		scene->getCamera()->rayThrough(x, y, r);
+		vec3f tracedColor = traceRay(scene, r, vec3f(1.0, 1.0, 1.0), 0, true, x, y).clamp();
+		return tracedColor;
+	}
+	else {
+		ray primRay(vec3f(0, 0, 0), vec3f(0, 0, 0));
+		scene->getCamera()->rayThrough(x, y, primRay);
+		vec3f tracedColor = traceRay(scene, primRay, vec3f(1.0, 1.0, 1.0), 0, true, x, y).clamp();
 
-	return tracedColor;
+		for (int i = 0; i < 3; i++) {	//fire three extra random rays
+			double aperture = m_pUI->getAperture();
+			double focalDist = m_pUI->getFocalLength();
+			vec3f camPosition = scene->getCamera()->getEye();
+			vec3f primDir = primRay.getDirection();
+			vec3f focalPoint = camPosition + focalDist * primDir;
+			
+			cout << "randomnumber is " << (double(rand()) / double(RAND_MAX)) << endl;
+			cout << "aperture is " << aperture << endl;
+
+			cout << "offset from pinhole" << (double(rand()) / double(RAND_MAX)) * aperture << endl;
+			vec3f randomPoint = camPosition + (  (double(rand()) / double(RAND_MAX)) * aperture) * scene->getCamera()->getv();
+			vec3f secondaryDir = (focalPoint - randomPoint).normalize();
+			ray secondaryRay(randomPoint, secondaryDir);
+			tracedColor += traceRay(scene, secondaryRay, vec3f(1.0, 1.0, 1.0), 0, true, x, y).clamp();
+		}
+
+		return tracedColor / 4;
+		
+
+	}
+
 }
 
 // Do recursive ray tracing!  You'll want to insert a lot of code here

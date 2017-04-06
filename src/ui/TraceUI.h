@@ -42,6 +42,9 @@ public:
 	Fl_Light_Button*	m_enableJitteringButton;
 	Fl_Light_Button*	m_enableTextureMappingButton;
 	Fl_Slider*			m_numSubPixelsSlider;
+	Fl_Light_Button*	m_enableDepthofFieldButton;
+	Fl_Slider*			m_focalLengthSlider;
+	Fl_Slider*			m_apertureSlider;
 
 
 
@@ -67,7 +70,10 @@ public:
 	bool		getEnableAntialiasing();
 	bool		getEnableJittering();
 	bool		getEnableTextureMapping();
+	bool		getEnableDepthofField();
 	int			getNumSubpixels();
+	double		getFocalLength();
+	double		getAperture();
 
 
 private:
@@ -84,6 +90,10 @@ private:
 	bool		m_enableAntialiasing;
 	bool		m_enableJittering;
 	bool		m_enableTextureMapping;
+	bool		m_enableDepthofField;
+
+	double		focalLength;
+	double		aperture;
 
 
 // static class members
@@ -109,8 +119,11 @@ private:
 	static void cb_enableBackground(Fl_Widget* o, void* v);
 	static void cb_enableJittering(Fl_Widget* o, void* v);
 	static void cb_enableAntialiasing(Fl_Widget* o, void* v);
+	static void cb_enableDepthofField(Fl_Widget* o, void* v);
 	static void cb_enableTextureMapping(Fl_Widget* o, void* v);
 	static void cb_numSubPixelsSlides(Fl_Widget* o, void* v);
+	static void cb_focalLengthSlides(Fl_Widget* o, void* v);
+	static void cb_apertureSlides(Fl_Widget* o, void* v);
 
 	static void cb_render(Fl_Widget* o, void* v);
 	static void cb_stop(Fl_Widget* o, void* v);

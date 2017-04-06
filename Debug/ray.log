@@ -1,3 +1,14 @@
-﻿  Sphere.cpp
+﻿  TraceUI.cpp
+c:\users\samuel he\source\repos\raytracings17\src\ui\traceui.cpp(35): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1769): note: see declaration of 'sprintf'
+c:\users\samuel he\source\repos\raytracings17\src\ui\traceui.cpp(48): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1769): note: see declaration of 'sprintf'
+c:\users\samuel he\source\repos\raytracings17\src\ui\traceui.cpp(200): warning C4800: 'char': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\samuel he\source\repos\raytracings17\src\ui\traceui.cpp(207): warning C4800: 'char': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\samuel he\source\repos\raytracings17\src\ui\traceui.cpp(214): warning C4800: 'char': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\samuel he\source\repos\raytracings17\src\ui\traceui.cpp(221): warning C4800: 'char': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\samuel he\source\repos\raytracings17\src\ui\traceui.cpp(228): warning C4800: 'char': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\samuel he\source\repos\raytracings17\src\ui\traceui.cpp(324): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1769): note: see declaration of 'sprintf'
   ray.vcxproj -> C:\Users\Samuel He\Source\Repos\RayTracingS17\.\Debug\ray.exe
   ray.vcxproj -> .\Debug/ray.pdb (Full PDB)

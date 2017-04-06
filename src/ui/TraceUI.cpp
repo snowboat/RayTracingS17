@@ -214,6 +214,13 @@ void TraceUI::cb_enableAntialiasing(Fl_Widget * o, void * v)
 	pUI->m_enableAntialiasing = bool(((Fl_Light_Button *)o)->value());
 }
 
+void TraceUI::cb_enableDepthofField(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+
+	pUI->m_enableDepthofField = bool(((Fl_Light_Button *)o)->value());
+}
+
 void TraceUI::cb_enableTextureMapping(Fl_Widget * o, void * v)
 {
 	TraceUI* pUI = (TraceUI*)(o->user_data());
@@ -225,6 +232,18 @@ void TraceUI::cb_numSubPixelsSlides(Fl_Widget * o, void * v)
 {
 	TraceUI* pUI = (TraceUI*)(o->user_data());
 	pUI->m_numSubPixels = int(((Fl_Slider *)o)->value());
+}
+
+void TraceUI::cb_focalLengthSlides(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+	pUI->focalLength = double(((Fl_Slider *)o)->value());
+}
+
+void TraceUI::cb_apertureSlides(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+	pUI->aperture = double(((Fl_Slider *)o)->value());
 }
 
 
@@ -360,9 +379,24 @@ bool TraceUI::getEnableTextureMapping()
 	return this->m_enableTextureMapping;
 }
 
+bool TraceUI::getEnableDepthofField()
+{
+	return this->m_enableDepthofField;
+}
+
 int TraceUI::getNumSubpixels()
 {
 	return this->m_numSubPixels;
+}
+
+double TraceUI::getFocalLength()
+{
+	return this->focalLength;
+}
+
+double TraceUI::getAperture()
+{
+	return this->aperture;
 }
 
 // menu definition
@@ -398,6 +432,9 @@ TraceUI::TraceUI() {
 	textureImg = NULL;
 	textureHeight = 0;
 	textureWidth = 0;
+	m_enableDepthofField = false;
+	focalLength = 1.0;
+	aperture = 1.0;
 
 	m_mainWindow = new Fl_Window(100, 40, 400, 400, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
@@ -500,6 +537,39 @@ TraceUI::TraceUI() {
 		m_enableTextureMappingButton->value(m_enableTextureMapping);
 		m_enableTextureMappingButton->callback(cb_enableTextureMapping);
 		m_enableTextureMappingButton->deactivate();
+
+		//Depth of field
+		m_enableDepthofFieldButton = new Fl_Light_Button(115, 205, 100, 25, "&Depth of Field");
+		m_enableDepthofFieldButton->user_data((void*)(this));   // record self to be used by static callback functions
+		m_enableDepthofFieldButton->value(m_enableDepthofField);
+		m_enableDepthofFieldButton->callback(cb_enableDepthofField);
+
+		//focal length slider
+		m_focalLengthSlider = new Fl_Value_Slider(10, 230, 180, 20, "Focal length");
+		m_focalLengthSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_focalLengthSlider->type(FL_HOR_NICE_SLIDER);
+		m_focalLengthSlider->labelfont(FL_COURIER);
+		m_focalLengthSlider->labelsize(12);
+		m_focalLengthSlider->minimum(0.00);
+		m_focalLengthSlider->maximum(5.00);
+		m_focalLengthSlider->step(0.01);
+		m_focalLengthSlider->value(focalLength);
+		m_focalLengthSlider->align(FL_ALIGN_RIGHT);
+		m_focalLengthSlider->callback(cb_focalLengthSlides);
+
+		//focal length slider
+		m_apertureSlider = new Fl_Value_Slider(10, 255, 180, 20, "Aperture");
+		m_apertureSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_apertureSlider->type(FL_HOR_NICE_SLIDER);
+		m_apertureSlider->labelfont(FL_COURIER);
+		m_apertureSlider->labelsize(12);
+		m_apertureSlider->minimum(0.00);
+		m_apertureSlider->maximum(5.00);
+		m_apertureSlider->step(0.01);
+		m_apertureSlider->value(aperture);
+		m_apertureSlider->align(FL_ALIGN_RIGHT);
+		m_apertureSlider->callback(cb_apertureSlides);
+
 
 		//Control Antialiasing Sub-pixels
 		m_constAttenSlider = new Fl_Value_Slider(10, 180, 180, 20, "# of subpixels");
