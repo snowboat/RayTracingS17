@@ -25,14 +25,7 @@ double degreeRadian(vec3f v1, vec3f v2) {
 // in an initial ray weight of (0.0,0.0,0.0) and an initial recursion depth of 0.
 vec3f RayTracer::trace( Scene *scene, double x, double y )
 {
-	if (!m_pUI->getEnableDepthofField()) {
-
-		ray r(vec3f(0, 0, 0), vec3f(0, 0, 0));
-		scene->getCamera()->rayThrough(x, y, r);
-		vec3f tracedColor = traceRay(scene, r, vec3f(1.0, 1.0, 1.0), 0, true).clamp();
-		return tracedColor;
-	}
-	else {
+	if (m_pUI->getEnableDepthofField()) {
 		ray primRay(vec3f(0, 0, 0), vec3f(0, 0, 0));
 		scene->getCamera()->rayThrough(x, y, primRay);
 		vec3f tracedColor(0.0, 0.0, 0.0);
@@ -42,15 +35,68 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 			vec3f camPosition = scene->getCamera()->getEye();
 			vec3f primDir = primRay.getDirection();
 			vec3f focalPoint = camPosition + focalDist * primDir;
-			vec3f randomPoint = camPosition + (  (double(rand()) / double(RAND_MAX)) * aperture) * scene->getCamera()->getv();
+			vec3f randomPoint = camPosition + ((double(rand()) / double(RAND_MAX)) * aperture) * scene->getCamera()->getv();
 			vec3f secondaryDir = (focalPoint - randomPoint).normalize();
 			ray secondaryRay(randomPoint, secondaryDir);
 			tracedColor += traceRay(scene, secondaryRay, vec3f(1.0, 1.0, 1.0), 0, true).clamp();
 		}
 
 		return tracedColor / 100.0;
-		
 
+	}
+	else if (scene->getMotionBlur()) {
+		//backup the geometries in this scene
+		//for every geometry in scene, translate 100 times
+		//do raytracing 100 times
+		mat4f slightTranslation  ( vec4f(1.0, 0.0, 0.0, 0.005),
+									vec4f(0.0, 1.0, 0.0, 0.005),
+									vec4f(0.0, 0.0, 1.0, 0.005),
+									vec4f(0.0, 0.0, 0.0, 1.0) );
+
+		vec3f tracedColor(0.0, 0.0, 0.0);
+		
+		//backup the xforms
+		std::vector<mat4f> backupMatrices;
+		for (list<Geometry*>::iterator itr = scene->beginGeometries(); itr != scene->endGeometries(); itr++) {
+			backupMatrices.push_back((*itr)->getTransformNode()->getXform());
+		}
+
+		for (int i = 0; i < 100; i++) {
+			//update the position of all objects
+			for (list<Geometry*>::iterator itr = scene->beginGeometries(); itr != scene->endGeometries(); itr++) {
+				mat4f backup = (*itr)->getTransformNode()->getXform();
+				//(*itr)->getTransformNode()->createChild(slightTranslation);
+				(*itr)->getTransformNode()->setXform(slightTranslation * backup);
+
+				cout << (*itr)->getTransformNode()->getXform()[0] << endl;
+				cout << (*itr)->getTransformNode()->getXform()[1] << endl;
+				cout << (*itr)->getTransformNode()->getXform()[2] << endl;
+				cout << (*itr)->getTransformNode()->getXform()[3] << endl;
+			}
+
+
+			//trace a ray normally
+			ray r(vec3f(0, 0, 0), vec3f(0, 0, 0));
+			scene->getCamera()->rayThrough(x, y, r);
+			tracedColor += traceRay(scene, r, vec3f(1.0, 1.0, 1.0), 0, true).clamp();
+		}
+		//restore the xforms after finishing up this pixel
+		int counter = 0;
+		for (list<Geometry*>::iterator itr = scene->beginGeometries(); itr != scene->endGeometries(); itr++) {
+			(*itr)->getTransformNode()->setXform(backupMatrices[counter]);
+			counter++;
+		}
+		return tracedColor / 100.0;
+
+
+	}
+	else {
+
+		
+		ray r(vec3f(0, 0, 0), vec3f(0, 0, 0));
+		scene->getCamera()->rayThrough(x, y, r);
+		vec3f tracedColor = traceRay(scene, r, vec3f(1.0, 1.0, 1.0), 0, true).clamp();
+		return tracedColor;
 	}
 
 }

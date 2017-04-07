@@ -49,6 +49,7 @@ void TraceUI::cb_load_scene(Fl_Menu_* o, void* v)
 			pUI->raytracer->getScene()->setSoftShadow(pUI->m_enableSoftShadow);
 			pUI->raytracer->getScene()->setSoftShadowCoeff(pUI->softshadowCoeff);
 			pUI->raytracer->getScene()->setGlossyReflection(pUI->m_glossyReflection);
+			pUI->raytracer->getScene()->setMotionBlur(pUI->m_motionBlur);
 			
 
 		} else{
@@ -287,6 +288,16 @@ void TraceUI::cb_glossyReflection(Fl_Widget * o, void * v)
 	}
 }
 
+void TraceUI::cb_motionBlur(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+	pUI->m_motionBlur = bool(((Fl_Light_Button *)o)->value());
+	//sync to current scene (if any)
+	if (pUI->raytracer->sceneLoaded()) {
+		pUI->raytracer->getScene()->setMotionBlur(pUI->m_motionBlur);
+	}
+}
+
 
 void TraceUI::cb_render(Fl_Widget* o, void* v)
 {
@@ -455,6 +466,11 @@ bool TraceUI::getGlossyReflection()
 	return this->m_glossyReflection;
 }
 
+bool TraceUI::getMotionBlur()
+{
+	return this->m_motionBlur;
+}
+
 // menu definition
 Fl_Menu_Item TraceUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
@@ -494,6 +510,7 @@ TraceUI::TraceUI() {
 	m_enableSoftShadow = false;
 	softshadowCoeff = 0.9;
 	m_glossyReflection = false;
+	m_motionBlur = false;
 
 	m_mainWindow = new Fl_Window(100, 40, 400, 400, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
@@ -616,6 +633,12 @@ TraceUI::TraceUI() {
 		m_glossyReflectionButton->user_data((void*)(this));   // record self to be used by static callback functions
 		m_glossyReflectionButton->value(m_glossyReflection);
 		m_glossyReflectionButton->callback(cb_glossyReflection);
+
+		//MotionBlur
+		m_motionBlurButton = new Fl_Light_Button(10, 305, 100, 25, "&MotionBlur");
+		m_motionBlurButton->user_data((void*)(this));   // record self to be used by static callback functions
+		m_motionBlurButton->value(m_motionBlur);
+		m_motionBlurButton->callback(cb_motionBlur);
 
 		//focal length slider
 		m_focalLengthSlider = new Fl_Value_Slider(10, 230, 180, 20, "Focal length");

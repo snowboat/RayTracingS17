@@ -117,6 +117,11 @@ bool Geometry::hasBoundingBoxCapability() const
 	return false;
 }
 
+TransformNode * Geometry::getTransformNode()
+{
+	return this->transform;
+}
+
 Scene::~Scene()
 {
     giter g;
@@ -283,4 +288,24 @@ bool Scene::getGlossyReflection()
 	return this->glossyReflection;
 }
 
+void Scene::setMotionBlur(bool mb)
+{
+	this->motionBlur = mb;
+}
 
+bool Scene::getMotionBlur()
+{
+	return this->motionBlur;
+}
+
+mat4f TransformNode::getXform()
+{
+	return this->xform;
+}
+
+void TransformNode::setXform(mat4f newxform)
+{
+	this->xform = newxform;
+	inverse = this->xform.inverse();
+	normi = this->xform.upper33().inverse().transpose();
+}

@@ -72,6 +72,9 @@ public:
    	typedef list<TransformNode*>::iterator          child_iter;
 	typedef list<TransformNode*>::const_iterator    child_citer;
 
+	mat4f getXform();
+	void setXform(mat4f newxform);
+
     ~TransformNode()
     {
         for(child_iter c = children.begin(); c != children.end(); ++c )
@@ -110,8 +113,7 @@ protected:
     // protected so that users can't directly construct one of these...
     // force them to use the createChild() method.  Note that they CAN
     // directly create a TransformRoot object.
-    TransformNode(TransformNode *parent, const mat4f& xform )
-        : children()
+    TransformNode(TransformNode *parent, const mat4f& xform ): children()
     {
         this->parent = parent;
         if (parent == NULL)
@@ -134,8 +136,7 @@ public:
 // A Geometry object is anything that has extent in three dimensions.
 // It may not be an actual visible scene object.  For example, hierarchical
 // spatial subdivision could be expressed in terms of Geometry instances.
-class Geometry
-	: public SceneElement
+class Geometry: public SceneElement
 {
 public:
     // intersections performed in the global coordinate space.
@@ -194,9 +195,9 @@ public:
     virtual BoundingBox ComputeLocalBoundingBox() { return BoundingBox(); }
 
     void setTransform(TransformNode *transform) { this->transform = transform; };
-    
-	Geometry( Scene *scene ) 
-		: SceneElement( scene ) {}
+	TransformNode* getTransformNode();
+
+	Geometry( Scene *scene ) : SceneElement( scene ) {}
 
 protected:
 	BoundingBox bounds;
@@ -263,7 +264,7 @@ public:
 	typedef list<Light*>::iterator 			liter;
 	typedef list<Light*>::const_iterator 	cliter;
 
-	typedef list<Geometry*>::iterator 		giter;
+	typedef list<Geometry*>::iterator 		giter;	//iterator of all Geometries in the scene
 	typedef list<Geometry*>::const_iterator cgiter;
 
     TransformRoot transformRoot;
@@ -294,6 +295,10 @@ public:
 
 	list<Light*>::const_iterator beginLights() const { return lights.begin(); }
 	list<Light*>::const_iterator endLights() const { return lights.end(); }
+	list<Geometry*>::iterator beginGeometries()  { return objects.begin(); }
+	list<Geometry*>::iterator endGeometries() { return objects.end(); }
+
+
 
 	Camera *getCamera() { return &camera; }
 
@@ -314,6 +319,9 @@ public:
 
 	void setGlossyReflection(bool glossy);
 	bool getGlossyReflection();
+
+	void setMotionBlur(bool mb);
+	bool getMotionBlur();
 private:
     list<Geometry*> objects;
 	list<Geometry*> nonboundedobjects;
@@ -326,6 +334,7 @@ private:
 
 	bool	softShadow;
 	bool	glossyReflection;
+	bool	motionBlur;
 	double	softShadowCoeff;
 
 	// Each object in the scene, provided that it has hasBoundingBoxCapability(),

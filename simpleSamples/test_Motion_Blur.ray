@@ -1,0 +1,32 @@
+SBT-raytracer 1.0
+
+
+
+camera
+{
+	position = (5, 0, 0);
+	viewdir = (-1, 0, 0);
+	updir = (0, 0, 1);
+}
+
+directional_light
+{
+	direction = (-1, 0, 0);
+	color = (1, 1, 1);
+}
+
+// Sphere acts as a lens
+
+scale(0.6,0.6,0.6, translate(0.0,1.0,0.0, sphere {
+	material = { 
+		diffuse = (1,1,1);
+		transmissive = (0,0,0);
+		index = 1.5;
+	}
+} ))
+
+
+
+
+
+	
