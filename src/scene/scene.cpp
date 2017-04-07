@@ -249,7 +249,6 @@ vec3f Scene::getTextureColor(double x, double y)
 		return vec3f((float)r / float(255), (float)g / 255.0f, (float)b / 255.0f).clamp();
 	}
 	else {
-		//cout << "caused by " << x << " " << y << endl;
 		return vec3f(0.0f, 0.0f, 0.0f);
 	}
 }
@@ -272,6 +271,16 @@ void Scene::setSoftShadowCoeff(double coeff)
 double Scene::getSoftShadowCoeff()
 {
 	return this->softShadowCoeff;
+}
+
+void Scene::setGlossyReflection(bool glossy)
+{
+	this->glossyReflection = glossy;
+}
+
+bool Scene::getGlossyReflection()
+{
+	return this->glossyReflection;
 }
 
 

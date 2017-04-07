@@ -312,6 +312,8 @@ public:
 	void setSoftShadowCoeff(double coeff);
 	double getSoftShadowCoeff();
 
+	void setGlossyReflection(bool glossy);
+	bool getGlossyReflection();
 private:
     list<Geometry*> objects;
 	list<Geometry*> nonboundedobjects;
@@ -323,6 +325,7 @@ private:
 	int textureHeight;
 
 	bool	softShadow;
+	bool	glossyReflection;
 	double	softShadowCoeff;
 
 	// Each object in the scene, provided that it has hasBoundingBoxCapability(),

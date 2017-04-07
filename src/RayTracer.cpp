@@ -78,14 +78,31 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		//cout << "dotproduct " << i.N.dot(-r.getDirection()) << endl;
 
 		// Reflection component
-		ray reflecRay(r.at(i.t),(2 * (i.N.dot(-r.getDirection()))*i.N + r.getDirection()).normalize());
 		vec3f reflecColor = { 0.0f,0.0f,0.0f };
-		if (depth < depthLimit) {
-			reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1,fromAir), m.kr);
+
+		if (scene->getGlossyReflection() && depth<depthLimit) {
+
+			ray reflecRay(r.at(i.t), (2 * (i.N.dot(-r.getDirection()))*i.N + r.getDirection()).normalize());
+			vec3f primDirection = reflecRay.getDirection();
+			for (int j = 0; j < 100; j++) {
+				vec3f uDistortion = primDirection.cross(i.N).normalize() * (double(rand()) * 0.1 / double(RAND_MAX));
+				vec3f vDistortion = primDirection.cross(uDistortion).normalize() * (double(rand()) * 0.1/ double(RAND_MAX));
+				ray secondaryRay(r.at(i.t), primDirection + uDistortion + vDistortion);
+				reflecColor += prod(traceRay(scene, secondaryRay, thresh, depth + 1, fromAir), m.kr);
+			}
+			reflecColor /= 100.0;
+		}
+		else {
+			ray reflecRay(r.at(i.t), (2 * (i.N.dot(-r.getDirection()))*i.N + r.getDirection()).normalize());
+			if (depth < depthLimit) {
+				reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1, fromAir), m.kr);
+			}
 		}
 
+
+
+
 		// Refractive component
-		
 		double mu = 1.0;
 		if (fromAir) {	  //Air into object
 			mu = 1.0 / m.index;
@@ -94,21 +111,14 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 			mu = m.index;
 		}
 		double criticalSin =	1/mu;	//sine of critical angle
-
-		
 		double cosphi = i.N.dot(-r.getDirection());
 		double phi = acos(cosphi);
 		vec3f refracColor = { 0.0f, 0.0f, 0.0f };
 		if ( criticalSin - sin(phi) > RAY_EPSILON) {	//no TIR
-			
 			double theta = asin(sin(phi) * mu);
 			double costheta = cos(theta);			
 			vec3f newDirection = (mu * r.getDirection() - (costheta - mu*cosphi) * i.N).normalize();
-			// vec3f newDirection = (mu * r.getDirection() + (mu*cosphi - costheta) * i.N).normalize();  // paper from greve
-			//THE TYPO ON ALAN WATT..... EXCITING!!!!!s
-			//cout << depth << " " << mu << " " << acos(cosphi) * 180 / PI << " " << acos(costheta) * 180 / PI << endl;
 			ray refracRay(r.at(i.t), newDirection);
-
 			if (depth < depthLimit) {
 				refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, !fromAir), m.kt);
 			}
@@ -116,9 +126,7 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 			return prod(m.shade(scene, r, i, m_pUI->getEnableTextureMapping()), (vec3f(1.0f, 1.0f, 1.0f) - m.kt)) + reflecColor + refracColor;
 	
 	} else {
-		// No intersection.  This ray travels to infinity, so we color
-		// it according to the background color, which in this (simple) case
-		// is just black.
+		// No intersection. Return background color
 		if (this->backgroundImg == NULL || !m_pUI->getEnableBackground()) {
 			return vec3f(0.0f, 0.0f, 0.0f);
 		}

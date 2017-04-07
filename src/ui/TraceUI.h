@@ -47,6 +47,7 @@ public:
 	Fl_Slider*			m_apertureSlider;
 	Fl_Light_Button*	m_enableSoftShadowButton;
 	Fl_Slider*			m_softshadowCoeffSlider;
+	Fl_Light_Button*	m_glossyReflectionButton;
 
 
 
@@ -78,7 +79,7 @@ public:
 	double		getAperture();
 	bool		getEnableSoftShadow();
 	double		getSoftshadowCoeff();
-
+	bool		getGlossyReflection();
 private:
 	RayTracer*	raytracer;
 
@@ -95,6 +96,7 @@ private:
 	bool		m_enableTextureMapping;
 	bool		m_enableDepthofField;
 	bool		m_enableSoftShadow;
+	bool		m_glossyReflection;
 
 	double		focalLength;
 	double		aperture;
@@ -131,6 +133,7 @@ private:
 	static void cb_focalLengthSlides(Fl_Widget* o, void* v);
 	static void cb_apertureSlides(Fl_Widget* o, void* v);
 	static void cb_softshadowCoeffSlides(Fl_Widget* o, void* v);
+	static void cb_glossyReflection(Fl_Widget* o, void* v);
 
 	static void cb_render(Fl_Widget* o, void* v);
 	static void cb_stop(Fl_Widget* o, void* v);

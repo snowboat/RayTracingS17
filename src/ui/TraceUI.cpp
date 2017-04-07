@@ -45,9 +45,11 @@ void TraceUI::cb_load_scene(Fl_Menu_* o, void* v)
 			pUI->raytracer->getScene()->setTextureWidth(pUI->textureWidth);
 			pUI->raytracer->getScene()->setTextureHeight(pUI->textureHeight);
 
-			//make the "soft shadow or not" consistent between UI and scene
+			//sync the distributed ray tracing options to the newly loaded scene
 			pUI->raytracer->getScene()->setSoftShadow(pUI->m_enableSoftShadow);
 			pUI->raytracer->getScene()->setSoftShadowCoeff(pUI->softshadowCoeff);
+			pUI->raytracer->getScene()->setGlossyReflection(pUI->m_glossyReflection);
+			
 
 		} else{
 			sprintf(buf, "Ray <Not Loaded>");
@@ -229,7 +231,6 @@ void TraceUI::cb_enableDepthofField(Fl_Widget * o, void * v)
 void TraceUI::cb_enableTextureMapping(Fl_Widget * o, void * v)
 {
 	TraceUI* pUI = (TraceUI*)(o->user_data());
-
 	pUI->m_enableTextureMapping = bool(((Fl_Light_Button *)o)->value());
 }
 
@@ -273,6 +274,16 @@ void TraceUI::cb_softshadowCoeffSlides(Fl_Widget * o, void * v)
 	//sync this value to scene if any
 	if (pUI->raytracer->sceneLoaded()) {
 		pUI->raytracer->getScene()->setSoftShadowCoeff(pUI->softshadowCoeff);
+	}
+}
+
+void TraceUI::cb_glossyReflection(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+	pUI->m_glossyReflection = bool(((Fl_Light_Button *)o)->value());
+	//sync to current scene (if any)
+	if (pUI->raytracer->sceneLoaded()) {
+		pUI->raytracer->getScene()->setGlossyReflection(pUI->m_glossyReflection);
 	}
 }
 
@@ -439,6 +450,11 @@ double TraceUI::getSoftshadowCoeff()
 	return this->softshadowCoeff;
 }
 
+bool TraceUI::getGlossyReflection()
+{
+	return this->m_glossyReflection;
+}
+
 // menu definition
 Fl_Menu_Item TraceUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
@@ -477,6 +493,7 @@ TraceUI::TraceUI() {
 	aperture = 1.0;
 	m_enableSoftShadow = false;
 	softshadowCoeff = 0.9;
+	m_glossyReflection = false;
 
 	m_mainWindow = new Fl_Window(100, 40, 400, 400, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
@@ -592,6 +609,13 @@ TraceUI::TraceUI() {
 		m_enableSoftShadowButton->user_data((void*)(this));   // record self to be used by static callback functions
 		m_enableSoftShadowButton->value(m_enableSoftShadow);
 		m_enableSoftShadowButton->callback(cb_enableSoftShadow);
+
+
+		//Glossy Reflection
+		m_glossyReflectionButton = new Fl_Light_Button(325, 205, 70, 25, "&GlossyRefl");
+		m_glossyReflectionButton->user_data((void*)(this));   // record self to be used by static callback functions
+		m_glossyReflectionButton->value(m_glossyReflection);
+		m_glossyReflectionButton->callback(cb_glossyReflection);
 
 		//focal length slider
 		m_focalLengthSlider = new Fl_Value_Slider(10, 230, 180, 20, "Focal length");

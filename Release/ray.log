@@ -1,37 +1,7 @@
 ﻿  RayTracer.cpp
 c:\users\samuel he\source\repos\raytracings17\src\fileio/parse.h(180): warning C4018: '<': signed/unsigned mismatch
-src\RayTracer.cpp(197): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-src\RayTracer.cpp(198): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-  Box.cpp
-  Cone.cpp
-  Cylinder.cpp
-  Sphere.cpp
-  Square.cpp
-  trimesh.cpp
-src\SceneObjects\trimesh.cpp(96): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-src\SceneObjects\trimesh.cpp(107): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  read.cpp
-c:\users\samuel he\source\repos\raytracings17\src\fileio\parse.h(180): warning C4018: '<': signed/unsigned mismatch
-  main.cpp
-  light.cpp
-  material.cpp
-  ray.cpp
-  scene.cpp
-  TraceGLWindow.cpp
-  TraceUI.cpp
-src\ui\TraceUI.cpp(35): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt\stdio.h(1769): note: see declaration of 'sprintf'
-src\ui\TraceUI.cpp(53): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt\stdio.h(1769): note: see declaration of 'sprintf'
-src\ui\TraceUI.cpp(205): warning C4800: 'char': forcing value to bool 'true' or 'false' (performance warning)
-src\ui\TraceUI.cpp(212): warning C4800: 'char': forcing value to bool 'true' or 'false' (performance warning)
-src\ui\TraceUI.cpp(219): warning C4800: 'char': forcing value to bool 'true' or 'false' (performance warning)
-src\ui\TraceUI.cpp(226): warning C4800: 'char': forcing value to bool 'true' or 'false' (performance warning)
-src\ui\TraceUI.cpp(233): warning C4800: 'char': forcing value to bool 'true' or 'false' (performance warning)
-src\ui\TraceUI.cpp(240): warning C4800: 'char': forcing value to bool 'true' or 'false' (performance warning)
-src\ui\TraceUI.cpp(354): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt\stdio.h(1769): note: see declaration of 'sprintf'
-  Generating Code...
+src\RayTracer.cpp(205): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+src\RayTracer.cpp(206): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
 fltk.lib(case.obj) : warning LNK4204: 'C:\Users\Samuel He\Source\Repos\RayTracingS17\Release\vc140.pdb' is missing debugging information for referencing module; linking object as if no debug info
 fltk.lib(filename_absolute.obj) : warning LNK4204: 'C:\Users\Samuel He\Source\Repos\RayTracingS17\Release\vc140.pdb' is missing debugging information for referencing module; linking object as if no debug info
 fltk.lib(filename_expand.obj) : warning LNK4204: 'C:\Users\Samuel He\Source\Repos\RayTracingS17\Release\vc140.pdb' is missing debugging information for referencing module; linking object as if no debug info

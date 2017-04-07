@@ -62,8 +62,9 @@ vec3f Material::shade(Scene * scene, const ray & r, const isect & i, bool textur
 			Diffuse = kd * max(0.0, L*i.N);	//if the shape of i.obj doesn't support texture mapping, then diffuse color is still the original one.
 		}
 	
-
 		vec3f Specular = ks*pow(max(0.0, V*R), shininess * 128);
+	
+
 		vec3f Attenuation;
 		//if soft shadow is enabled, use "soft shadow attenuation" instead.
 		if (scene->getSoftShadow()) {

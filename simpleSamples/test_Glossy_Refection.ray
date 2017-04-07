@@ -46,7 +46,7 @@ translate( 0, 0, -2,
 translate( 0, 0, 1,
 	cylinder {
 		material = {
-			ambient = (0, 0.6, 0);
+			ambient = (0, 0.4, 0);
 			diffuse = (0, 0.5, 0);
 			specular = (0.5, 0.5, 0.5);
 			reflective = (1, 1, 1);
