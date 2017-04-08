@@ -1,0 +1,37 @@
+SBT-raytracer 1.0
+
+// box_cyl_opaque_shadow.ray
+// Test opaque shadows
+
+camera
+{
+	position = (15, 0, 5);
+	viewdir = (-1, 0,0);
+	updir = (0, 0, 1);
+}
+
+// This light should cast the shadow of the
+// cylinder on the box.
+warn_model_light
+{
+	position = (0, 0,8);
+	color = (1, 1,1);
+	central_direction = (0,0,-1);
+	specular_exponent = 16.0;
+	xflapmin = -2;
+	xflapmax = 2;
+	yflapmin = -3;
+	yflapmax = 3;
+	zflapmin = -2;
+	zflapmax = 2;
+}
+
+// The box forms a plane
+translate( 0, 0, 0,
+	scale( 15, 15, 1, 
+		box {
+			material = { 
+				diffuse = (0.102, 0.7764, 1.0); 
+			}
+		} ) )
+

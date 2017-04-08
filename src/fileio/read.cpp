@@ -568,6 +568,52 @@ static void processObject( Obj *obj, Scene *scene, mmap& materials )
 		}
 		scene->add(l);
 	}
+	else if (name == "warn_model_light") {
+		if (child == NULL) {
+			throw ParseError("No info for Warn Model Light");
+		}
+
+		WarnModelLight* l;
+		double specExp = 0.0;
+		double xmin, xmax, ymin, ymax, zmin, zmax;
+		if (hasField(child, "specular_exponent")) { // angle of spotlight
+			specExp = getField(child, "specular_exponent")->getScalar();
+		}
+		if (hasField(child, "xflapmin")) { // angle of spotlight
+			xmin = getField(child, "xflapmin")->getScalar();
+		}
+		if (hasField(child, "xflapmax")) { // angle of spotlight
+			xmax = getField(child, "xflapmax")->getScalar();
+		}
+		if (hasField(child, "yflapmin")) { // angle of spotlight
+			ymin = getField(child, "yflapmin")->getScalar();
+		}
+		if (hasField(child, "yflapmax")) { // angle of spotlight
+			ymax = getField(child, "yflapmax")->getScalar();
+		}
+		if (hasField(child, "zflapmin")) { // angle of spotlight
+			zmin = getField(child, "zflapmin")->getScalar();
+		}
+		if (hasField(child, "zflapmax")) { // angle of spotlight
+			zmax = getField(child, "zflapmax")->getScalar();
+		}
+		l = new WarnModelLight(scene,
+			tupleToVec(getField(child, "position")),
+			tupleToVec(getColorField(child)),
+			tupleToVec(getField(child, "central_direction")),
+			specExp, xmin, xmax, ymin, ymax, zmin, zmax
+		);
+		if (hasField(child, "constant_attenuation_coeff")) {
+			l->constant_attenuation_coeff = getField(child, "constant_attenuation_coeff")->getScalar();
+		}
+		if (hasField(child, "linear_attenuation_coeff")) {
+			l->linear_attenuation_coeff = getField(child, "linear_attenuation_coeff")->getScalar();
+		}
+		if (hasField(child, "quadratic_attenuation_coeff")) {
+			l->quadratic_attenuation_coeff = getField(child, "quadratic_attenuation_coeff")->getScalar();
+		}
+		scene->add(l);
+	}
 	else if( 	name == "sphere" ||
 				name == "box" ||
 				name == "cylinder" ||

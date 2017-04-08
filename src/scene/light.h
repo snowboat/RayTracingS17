@@ -72,4 +72,24 @@ protected:
 	vec3f centralDirection;	//self-explanatory
 };
 
+//Warn Model is a point light whose effect gradually decays as direction deviates from central direction.
+class WarnModelLight : public PointLight {
+public:
+	WarnModelLight(Scene* scene, const vec3f& pos, const vec3f& color, const vec3f& centralDir, double& specExp,
+		double& xmin, double& xmax, double& ymin, double& ymax, double& zmin, double& zmax):
+		PointLight(scene, pos, color), centralDirection(centralDir.normalize()), specularExponent(specExp),
+		xflapmin(xmin), xflapmax(xmax), yflapmin(ymin), yflapmax (ymax), zflapmin(zmin), zflapmax(zmax){}
+	virtual vec3f getColor(const vec3f& p) const;
+protected:
+	vec3f centralDirection;
+	double specularExponent;
+
+	double xflapmin;
+	double xflapmax;
+	double yflapmin;
+	double yflapmax;
+	double zflapmin;
+	double zflapmax;
+};
+
 #endif // __LIGHT_H__

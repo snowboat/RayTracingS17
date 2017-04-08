@@ -44,7 +44,7 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 		return tracedColor / 100.0;
 
 	}
-	else if (scene->getMotionBlur()) {
+	else if (scene->getMotionBlur()) {	//Assume that motion blur and DOF will not happen simutaneously
 		//backup the geometries in this scene
 		//for every geometry in scene, translate 100 times
 		//do raytracing 100 times
@@ -65,13 +65,7 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 			//update the position of all objects
 			for (list<Geometry*>::iterator itr = scene->beginGeometries(); itr != scene->endGeometries(); itr++) {
 				mat4f backup = (*itr)->getTransformNode()->getXform();
-				//(*itr)->getTransformNode()->createChild(slightTranslation);
 				(*itr)->getTransformNode()->setXform(slightTranslation * backup);
-
-				cout << (*itr)->getTransformNode()->getXform()[0] << endl;
-				cout << (*itr)->getTransformNode()->getXform()[1] << endl;
-				cout << (*itr)->getTransformNode()->getXform()[2] << endl;
-				cout << (*itr)->getTransformNode()->getXform()[3] << endl;
 			}
 
 

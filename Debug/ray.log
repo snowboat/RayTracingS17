@@ -1,6 +1,29 @@
 ﻿  RayTracer.cpp
 c:\users\samuel he\source\repos\raytracings17\src\fileio\parse.h(180): warning C4018: '<': signed/unsigned mismatch
-c:\users\samuel he\source\repos\raytracings17\src\raytracer.cpp(251): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-c:\users\samuel he\source\repos\raytracings17\src\raytracer.cpp(252): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+c:\users\samuel he\source\repos\raytracings17\src\raytracer.cpp(245): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+c:\users\samuel he\source\repos\raytracings17\src\raytracer.cpp(246): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  read.cpp
+c:\users\samuel he\source\repos\raytracings17\src\fileio\parse.h(180): warning C4018: '<': signed/unsigned mismatch
+  main.cpp
+  light.cpp
+  material.cpp
+  scene.cpp
+  TraceGLWindow.cpp
+  TraceUI.cpp
+c:\users\samuel he\source\repos\raytracings17\src\ui\traceui.cpp(35): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1769): note: see declaration of 'sprintf'
+c:\users\samuel he\source\repos\raytracings17\src\ui\traceui.cpp(56): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1769): note: see declaration of 'sprintf'
+c:\users\samuel he\source\repos\raytracings17\src\ui\traceui.cpp(208): warning C4800: 'char': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\samuel he\source\repos\raytracings17\src\ui\traceui.cpp(215): warning C4800: 'char': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\samuel he\source\repos\raytracings17\src\ui\traceui.cpp(222): warning C4800: 'char': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\samuel he\source\repos\raytracings17\src\ui\traceui.cpp(229): warning C4800: 'char': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\samuel he\source\repos\raytracings17\src\ui\traceui.cpp(235): warning C4800: 'char': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\samuel he\source\repos\raytracings17\src\ui\traceui.cpp(242): warning C4800: 'char': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\samuel he\source\repos\raytracings17\src\ui\traceui.cpp(284): warning C4800: 'char': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\samuel he\source\repos\raytracings17\src\ui\traceui.cpp(294): warning C4800: 'char': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\samuel he\source\repos\raytracings17\src\ui\traceui.cpp(376): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1769): note: see declaration of 'sprintf'
+  Generating Code...
   ray.vcxproj -> C:\Users\Samuel He\Source\Repos\RayTracingS17\.\Debug\ray.exe
   ray.vcxproj -> .\Debug/ray.pdb (Full PDB)

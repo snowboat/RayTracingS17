@@ -123,3 +123,16 @@ vec3f SpotLight::getColor(const vec3f & p) const
 		return vec3f(0.0f, 0.0f, 0.0f);
 	}
 }
+
+vec3f WarnModelLight::getColor(const vec3f & p) const
+{
+	if (p[0] >= xflapmin && p[0] <= xflapmax && p[1] >= yflapmin && p[1] <= yflapmax && p[2] >= zflapmin && p[2] <= zflapmax) {
+		vec3f link = (p - this->position).normalize();
+		double dotProduct = min(0.0, (-link).dot(this->centralDirection));
+		return pow(dotProduct, this->specularExponent) * this->color;
+	}
+	else {
+		return vec3f(0.0f, 0.0f, 0.0f);
+
+	}
+}
