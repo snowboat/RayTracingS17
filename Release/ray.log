@@ -1,4 +1,4 @@
-﻿  light.cpp
+﻿  scene.cpp
 fltk.lib(case.obj) : warning LNK4204: 'C:\Users\Samuel He\Source\Repos\RayTracingS17\Release\vc140.pdb' is missing debugging information for referencing module; linking object as if no debug info
 fltk.lib(filename_absolute.obj) : warning LNK4204: 'C:\Users\Samuel He\Source\Repos\RayTracingS17\Release\vc140.pdb' is missing debugging information for referencing module; linking object as if no debug info
 fltk.lib(filename_expand.obj) : warning LNK4204: 'C:\Users\Samuel He\Source\Repos\RayTracingS17\Release\vc140.pdb' is missing debugging information for referencing module; linking object as if no debug info

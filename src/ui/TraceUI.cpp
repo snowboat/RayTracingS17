@@ -50,6 +50,9 @@ void TraceUI::cb_load_scene(Fl_Menu_* o, void* v)
 			pUI->raytracer->getScene()->setSoftShadowCoeff(pUI->softshadowCoeff);
 			pUI->raytracer->getScene()->setGlossyReflection(pUI->m_glossyReflection);
 			pUI->raytracer->getScene()->setMotionBlur(pUI->m_motionBlur);
+			pUI->raytracer->getScene()->setHFColorImg(pUI->hfColorImg);
+			pUI->raytracer->getScene()->setHFIntensityImg(pUI->hfIntensityImg, pUI->hfWidth, pUI->hfHeight);
+
 			
 
 		} else{
@@ -124,6 +127,62 @@ void TraceUI::cb_load_texture(Fl_Menu_ * o, void * v)
 		}
 	}
 
+}
+
+void TraceUI::cb_load_heightfield_intensity(Fl_Menu_ * o, void * v)
+{
+	TraceUI* pUI = whoami(o);
+
+	char* newfile = fl_file_chooser("Load HeightField Intensities", "*.bmp", NULL);
+
+	if (newfile) {
+		unsigned char* data;
+		int width, height;
+		if ((data = readBMP(newfile, width, height)) == NULL)
+		{
+			fl_alert("Can't load bitmap file");
+			return;
+		}
+		else {
+			pUI->hfIntensityImg = data;
+			if (pUI->raytracer->sceneLoaded())
+				pUI->raytracer->getScene()->setHFIntensityImg(data, width, height);
+			
+			//activate the button if both intensity img and color img are loaded
+			if (pUI->hfIntensityImg && pUI->hfColorImg)
+				pUI->m_generateHeightFieldButton->activate();
+		}
+	}
+
+
+}
+
+void TraceUI::cb_load_heightfield_color(Fl_Menu_ * o, void * v)
+{
+	TraceUI* pUI = whoami(o);
+
+	char* newfile = fl_file_chooser("Load HeightField Color", "*.bmp", NULL);
+
+	if (newfile) {
+		unsigned char* data;
+		int width, height;
+		if ((data = readBMP(newfile, width, height)) == NULL)
+		{
+			fl_alert("Can't load bitmap file");
+			return;
+		}
+		else {
+			pUI->hfColorImg = data;
+			if (pUI->raytracer->sceneLoaded())
+				pUI->raytracer->getScene()->setHFColorImg(data);
+
+			//TODO: handle the situation where hf color image has different dimension with hf intensity image
+
+			//activate the button if both intensity img and color img are loaded
+			if (pUI->hfIntensityImg && pUI->hfColorImg)
+				pUI->m_generateHeightFieldButton->activate();
+		}
+	}
 }
 
 void TraceUI::cb_exit(Fl_Menu_* o, void* v)
@@ -295,6 +354,15 @@ void TraceUI::cb_motionBlur(Fl_Widget * o, void * v)
 	//sync to current scene (if any)
 	if (pUI->raytracer->sceneLoaded()) {
 		pUI->raytracer->getScene()->setMotionBlur(pUI->m_motionBlur);
+	}
+}
+
+void TraceUI::cb_generateHeightField(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+	if (pUI->raytracer->sceneLoaded()) {
+		pUI->raytracer->getScene()->showHeightField();
+
 	}
 }
 
@@ -478,6 +546,8 @@ Fl_Menu_Item TraceUI::menuitems[] = {
 		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback *)TraceUI::cb_save_image },
 		{ "&Load Background...",	FL_ALT + 's', (Fl_Callback *)TraceUI::cb_load_background },
 		{ "&Load Texture...",	FL_ALT + 's', (Fl_Callback *)TraceUI::cb_load_texture },
+		{ "&Load Height Field Intensity...",	FL_ALT + 's', (Fl_Callback *)TraceUI::cb_load_heightfield_intensity },
+		{ "&Load Height Field Color...",	FL_ALT + 's', (Fl_Callback *)TraceUI::cb_load_heightfield_color },
 		{ "&Exit",			FL_ALT + 'e', (Fl_Callback *)TraceUI::cb_exit },
 		{ 0 },
 
@@ -511,6 +581,10 @@ TraceUI::TraceUI() {
 	softshadowCoeff = 0.9;
 	m_glossyReflection = false;
 	m_motionBlur = false;
+	hfIntensityImg = nullptr;
+	hfColorImg = nullptr;
+	hfWidth = 0;
+	hfHeight = 0;
 
 	m_mainWindow = new Fl_Window(100, 40, 400, 400, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
@@ -692,6 +766,12 @@ TraceUI::TraceUI() {
 		m_constAttenSlider->value(m_numSubPixels);
 		m_constAttenSlider->align(FL_ALIGN_RIGHT);
 		m_constAttenSlider->callback(cb_numSubPixelsSlides);
+
+		//generateHeightField
+		m_generateHeightFieldButton = new Fl_Button(115, 305, 100, 25, "&Height Field");
+		m_generateHeightFieldButton->user_data((void*)(this));
+		m_generateHeightFieldButton->callback(cb_generateHeightField);
+		m_generateHeightFieldButton->deactivate();
 
 		m_renderButton = new Fl_Button(240, 27, 70, 25, "&Render");
 		m_renderButton->user_data((void*)(this));

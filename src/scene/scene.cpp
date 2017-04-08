@@ -3,6 +3,7 @@
 #include "scene.h"
 #include "light.h"
 #include "../ui/TraceUI.h"
+#include "../SceneObjects/trimesh.h"
 extern TraceUI* traceUI;
 
 void BoundingBox::operator=(const BoundingBox& target)
@@ -240,14 +241,31 @@ int Scene::getTextureHeight()
 
 vec3f Scene::getTextureColor(double x, double y)
 {
-	if (this->getTexture() && x >= 0 && x <= 1 && y >= 0 && y <= 1) {
+	//if (this->getTexture() && x >= 0 && x <= 1 && y >= 0 && y <= 1) {
 
-		int textureWidth = this->getTextureWidth();
-		int textureHeight = this->getTextureHeight();
+	//	int textureWidth = this->getTextureWidth();
+	//	int textureHeight = this->getTextureHeight();
 
-		int pixelx = min(textureWidth - 1, int(x*textureWidth));
-		int pixely = min(textureHeight - 1, int(y*textureHeight));
-		unsigned char* pixel = this->getTexture() + (pixelx + pixely*textureWidth) * 3;
+	//	int pixelx = min(textureWidth - 1, int(x*textureWidth));
+	//	int pixely = min(textureHeight - 1, int(y*textureHeight));
+	//	unsigned char* pixel = this->getTexture() + (pixelx + pixely*textureWidth) * 3;
+	//	int r = (int)*pixel;
+	//	int g = (int)*(pixel + 1);
+	//	int b = (int)*(pixel + 2);
+	//	return vec3f((float)r / float(255), (float)g / 255.0f, (float)b / 255.0f).clamp();
+	//}
+	//else {
+	//	return vec3f(0.0f, 0.0f, 0.0f);
+	//}
+	return getBitmapColor(this->textureImg, this->textureWidth, this->textureHeight, x, y);
+}
+
+vec3f Scene::getBitmapColor(unsigned char * bitmap, int bmpwidth, int bmpheight, double x, double y)
+{
+	if (bitmap && x >= 0 && x <= 1 && y >= 0 && y <= 1) {
+		int pixelx = min(bmpwidth - 1, int(x*bmpwidth));
+		int pixely = min(bmpheight - 1, int(y*bmpheight));
+		unsigned char* pixel = bitmap + (pixelx + pixely*bmpwidth) * 3;
 		int r = (int)*pixel;
 		int g = (int)*(pixel + 1);
 		int b = (int)*(pixel + 2);
@@ -257,6 +275,20 @@ vec3f Scene::getTextureColor(double x, double y)
 		return vec3f(0.0f, 0.0f, 0.0f);
 	}
 }
+
+vec3f Scene::getBitmapColorFromPixel(unsigned char* bitmap, int bmpwidth, int bmpheight, int x, int y) {
+	if (bitmap && x >= 0 && x < bmpwidth && y >= 0 && y <= bmpheight) {
+		unsigned char* pixel = bitmap + (x + y*bmpwidth) * 3;
+		int r = (int)*pixel;
+		int g = (int)*(pixel + 1);
+		int b = (int)*(pixel + 2);
+		return vec3f((float)r / float(255), (float)g / 255.0f, (float)b / 255.0f).clamp();
+	}
+	else {
+		return vec3f(0.0, 0.0, 0.0);
+	}
+}
+
 
 void Scene::setSoftShadow(bool sofSha)
 {
@@ -296,6 +328,85 @@ void Scene::setMotionBlur(bool mb)
 bool Scene::getMotionBlur()
 {
 	return this->motionBlur;
+}
+
+unsigned char * Scene::getHFIntensityImg()
+{
+	return this->heightFieldIntensity;
+}
+
+void Scene::setHFIntensityImg(unsigned char * hfi, int hfw, int hfh)
+{
+	this->heightFieldIntensity = hfi;
+	this->hfHeight = hfh;
+	this->hfWidth = hfw;
+}
+
+
+unsigned char * Scene::getHFColorImg()
+{
+	return this->heightFieldColor;
+}
+
+void Scene::setHFColorImg(unsigned char * hfc)
+{
+	this->heightFieldColor = hfc;
+}
+
+
+
+void Scene::showHeightField()
+{
+	Material* emptyMaterial = new Material();
+	mat4f identityXform = { vec4f(1.0,0.0,0.0,0.0),
+		vec4f(0.0,1.0,0.0,0.0),
+		vec4f(0.0,0.0,1.0,0.0) ,
+		vec4f(0.0,0.0,0.0,1.0) };
+	TransformRoot* emptyNode = new TransformRoot();
+
+	Trimesh* hfTrimesh = new Trimesh(this, emptyMaterial,emptyNode);//generate a default trimesh WITH NO MATERIAL AND NO TRANSFORM
+	cout << "hfh hfw" << hfWidth << " " << hfHeight << endl;
+	//add all vertices: 512*512 vertices
+	//trimesh will be shown between -1,-1 and 1,1
+	for (int y = 0; y < hfHeight; y+= 1) {
+		for (int x = 0; x < hfWidth; x+=1) {
+			vec3f intensityColor = getBitmapColorFromPixel(heightFieldIntensity, hfWidth, hfHeight, x, y);
+			double intensityValue = 0.299*intensityColor[0] + 0.587*intensityColor[1] + 0.114*intensityColor[2];
+			vec3f newVertex (2.0* double(x) / double(hfWidth) - 1.0, 2.0* double(y) / double(hfHeight) - 1.0, intensityValue);
+			hfTrimesh->addVertex(newVertex);
+			//cout << "new vertex at " << newVertex << endl;
+			
+
+			//add material (mainly color) to this vertex
+			Material* matThisVertex = new Material();
+			matThisVertex->kd = getBitmapColorFromPixel(heightFieldColor, hfWidth, hfHeight, x, y);
+			hfTrimesh->addMaterial(matThisVertex);
+			//cout << "its color is" << matThisVertex->kd << endl;
+
+		}
+	}
+
+
+
+	//add faces
+	for (int y = 0; y < hfHeight-1; y+= 1) {
+		for (int x = 0; x < hfWidth - 1; x+= 1) {
+			int v00 = x + y*hfWidth;
+			int v01 = v00 + hfWidth;
+			int v10 = v00 + 1;
+			int v11 = v01 + 1;
+			hfTrimesh->addFace(v00, v01, v11);
+			hfTrimesh->addFace(v00, v10, v11);
+			cout << "new face " << v00 << " " << v01 << " " << v11 << endl;
+			cout << "new face2 " << v00 << " " << v10 << " " << v11 << endl;
+		}
+	}
+
+	//fl_message(hfTrimesh->doubleCheck());
+	//copy them to bounded object list
+	for (std::list<Geometry*>::iterator itr = this->objects.begin(); itr != this->objects.end(); itr++) {
+		this->boundedobjects.push_back(*itr);
+	}
 }
 
 mat4f TransformNode::getXform()

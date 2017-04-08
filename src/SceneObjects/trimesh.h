@@ -16,10 +16,10 @@ class Trimesh : public MaterialSceneObject
     typedef vector<vec3f> Vertices;
     typedef vector<TrimeshFace*> Faces;
     typedef vector<Material*> Materials;
-    Vertices vertices;
-    Faces faces;
-    Normals normals;
-    Materials materials;
+    Vertices vertices;	//vector of all vertices
+    Faces faces;	//vector of TrimeshFace* s
+    Normals normals;	//vector of normals
+    Materials materials;	//vector of Material* s
 public:
     Trimesh( Scene *scene, Material *mat, TransformNode *transform )
         : MaterialSceneObject(scene, mat)
@@ -30,9 +30,11 @@ public:
     ~Trimesh();
     
     // must add vertices, normals, and materials IN ORDER
-    void addVertex( const vec3f & );
-    void addMaterial( Material *m );
-    void addNormal( const vec3f & );
+    void addVertex( const vec3f & );	//vertices first
+    void addMaterial( Material *m );	//materials second
+    void addNormal( const vec3f & );	//normals third
+	
+	
 	virtual bool getLocalUV(const ray& r, const isect& i, double& u, double& v) const;	// returns true only if this sceneobject supports texture mapping
 
 

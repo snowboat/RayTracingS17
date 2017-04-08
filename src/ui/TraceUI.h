@@ -54,6 +54,7 @@ public:
 
 	Fl_Button*			m_renderButton;
 	Fl_Button*			m_stopButton;
+	Fl_Button*			m_generateHeightFieldButton;
 
 	TraceGLWindow*		m_traceGlWindow;
 
@@ -105,6 +106,10 @@ private:
 	double		aperture;
 	double		softshadowCoeff;
 
+	unsigned char* hfIntensityImg;
+	unsigned char* hfColorImg;
+	int hfHeight;
+	int hfWidth;
 
 // static class members
 	static Fl_Menu_Item menuitems[];
@@ -115,6 +120,8 @@ private:
 	static void cb_save_image(Fl_Menu_* o, void* v);
 	static void cb_load_background(Fl_Menu_* o, void* v);
 	static void cb_load_texture(Fl_Menu_* o, void* v);
+	static void cb_load_heightfield_intensity(Fl_Menu_* o, void* v);
+	static void cb_load_heightfield_color(Fl_Menu_* o, void* v);
 	static void cb_exit(Fl_Menu_* o, void* v);
 	static void cb_about(Fl_Menu_* o, void* v);
 
@@ -138,6 +145,7 @@ private:
 	static void cb_softshadowCoeffSlides(Fl_Widget* o, void* v);
 	static void cb_glossyReflection(Fl_Widget* o, void* v);
 	static void cb_motionBlur(Fl_Widget* o, void* v);
+	static void cb_generateHeightField(Fl_Widget* o, void* v);
 
 	static void cb_render(Fl_Widget* o, void* v);
 	static void cb_stop(Fl_Widget* o, void* v);

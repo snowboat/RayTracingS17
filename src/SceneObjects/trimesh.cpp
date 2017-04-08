@@ -18,7 +18,7 @@ void Trimesh::addVertex( const vec3f &v )
 
 void Trimesh::addMaterial( Material *m )
 {
-    materials.push_back( m );
+    materials.push_back( m );	//every vertex has a material.
 }
 
 void Trimesh::addNormal( const vec3f &n )
@@ -34,7 +34,7 @@ bool Trimesh::getLocalUV(const ray & r, const isect & i, double & u, double & v)
 // Returns false if the vertices a,b,c don't all exist
 bool Trimesh::addFace( int a, int b, int c )
 {
-    int vcnt = vertices.size();
+    int vcnt = vertices.size();	//vertices count
 
     if( a >= vcnt || b >= vcnt || c >= vcnt )
         return false;
@@ -46,8 +46,7 @@ bool Trimesh::addFace( int a, int b, int c )
     return true;
 }
 
-char *
-Trimesh::doubleCheck()
+char* Trimesh::doubleCheck()
 // Check to make sure that if we have per-vertex materials or normals
 // they are the right number.
 {
@@ -67,9 +66,9 @@ Trimesh::doubleCheck()
 // Calculates and returns the normal of the triangle too.
 bool TrimeshFace::intersectLocal( const ray& r, isect& i ) const
 {
-    const vec3f& a = parent->vertices[ids[0]];
-    const vec3f& b = parent->vertices[ids[1]];
-    const vec3f& c = parent->vertices[ids[2]];
+    const vec3f& a = parent->vertices[ids[0]];		//vertex a
+    const vec3f& b = parent->vertices[ids[1]];		//vertex b
+    const vec3f& c = parent->vertices[ids[2]];		//vertex c
     
     vec3f bary;
     float t;
@@ -132,7 +131,14 @@ bool TrimeshFace::intersectLocal( const ray& r, isect& i ) const
                  + bary[2] * parent->normals[ids[2]]).normalize() );
     } else {
         i.setN( n );           // use face normal
+
+		
     }
+	//FLIP THE NORMAL IF NECESSARY
+	if (r.getDirection().dot(i.N) > 0)
+		i.N *= -1.0;
+
+
     i.obj = this;
 
     // linearly interpolate materials
@@ -152,8 +158,7 @@ bool TrimeshFace::getLocalUV(const ray & r, const isect & i, double & u, double 
 	return false;
 }
 
-void
-Trimesh::generateNormals()
+void Trimesh::generateNormals()
 // Once you've loaded all the verts and faces, we can generate per
 // vertex normals by averaging the normals of the neighboring faces.
 {

@@ -279,6 +279,8 @@ public:
 		linearAttenFactor = 1.0;
 		quadAttenFactor = 1.0;
 		textureImg = NULL;
+		heightFieldColor = NULL;
+		heightFieldIntensity = nullptr;
 	}
 	virtual ~Scene();
 
@@ -312,6 +314,9 @@ public:
 	int getTextureWidth();
 	int getTextureHeight();
 	vec3f getTextureColor(double x, double y);
+	vec3f getBitmapColor(unsigned char* bitmap, int bmpwidth, int bmpheight, double x, double y);	//given two values 0.0~1.0, returns the corresponding color in bitmap
+	vec3f getBitmapColorFromPixel(unsigned char* bitmap, int bmpwidth, int bmpheight, int x, int y);
+
 	void setSoftShadow(bool sofSha);
 	bool getSoftShadow();
 	void setSoftShadowCoeff(double coeff);
@@ -322,6 +327,13 @@ public:
 
 	void setMotionBlur(bool mb);
 	bool getMotionBlur();
+
+	unsigned char* getHFIntensityImg();
+	void setHFIntensityImg(unsigned char* hfi, int hfw, int hfh);
+	unsigned char* getHFColorImg();
+	void setHFColorImg(unsigned char* hfc);
+
+	void showHeightField();
 private:
     list<Geometry*> objects;
 	list<Geometry*> nonboundedobjects;
@@ -336,6 +348,11 @@ private:
 	bool	glossyReflection;
 	bool	motionBlur;
 	double	softShadowCoeff;
+
+	unsigned char* heightFieldIntensity;
+	unsigned char* heightFieldColor;
+	int hfWidth;
+	int hfHeight;
 
 	// Each object in the scene, provided that it has hasBoundingBoxCapability(),
 	// must fall within this bounding box.  Objects that don't have hasBoundingBoxCapability()
