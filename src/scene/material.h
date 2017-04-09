@@ -31,7 +31,6 @@ public:
         : ke( e ), ka( a ), ks( s ), kd( d ), kr( r ), kt( t ), shininess( sh ), index( in ) {}
 
 	virtual vec3f shade(Scene *scene, const ray& r, const isect& i) const;
-	virtual vec3f shade(Scene *scene, const ray& r, const isect& i, bool textureMap) const;
 
     vec3f ke;                    // emissive
     vec3f ka;                    // ambient

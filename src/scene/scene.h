@@ -213,7 +213,10 @@ class SceneObject: public Geometry
 public:
 	virtual const Material& getMaterial() const = 0;
 	virtual void setMaterial( Material *m ) = 0;
-	virtual bool getLocalUV(const ray& r, const isect& i, double& u, double& v) const = 0;	// returns true only if this sceneobject supports texture mapping
+	virtual bool getLocalUV(const ray& r, const isect& i, double& u, double& v) const { return false; }// returns true only if this sceneobject supports texture mapping
+	virtual bool preturbNormal(const ray& r, isect& i, const double& u, const double& v, unsigned char* preturbImg, const int& imgWidth, const int& imgHeight, Scene* scene) const {
+		return false;
+	}
 
 
 protected:
@@ -235,8 +238,12 @@ public:
 
 	virtual const Material& getMaterial() const { return *material; }
 	virtual void setMaterial( Material *m )	{ material = m; }
-	virtual bool getLocalUV(const ray& r, const isect& i, double& u, double& v) const = 0;	// returns true only if this sceneobject supports texture mapping
-
+	virtual bool getLocalUV(const ray& r, const isect& i, double& u, double& v) const {
+		return false;
+	}	// returns true only if this sceneobject supports texture mapping
+	virtual bool preturbNormal(const ray& r, isect& i, const double& u, const double& v, unsigned char* preturbImg, const int& imgWidth, const int& imgHeight, Scene* scene) const {
+		return false;
+	}
 protected:
 	MaterialSceneObject( Scene *scene, Material *mat ) 
 		: SceneObject( scene ), material( mat ) {}
@@ -316,6 +323,7 @@ public:
 	vec3f getTextureColor(double x, double y);
 	vec3f getBitmapColor(unsigned char* bitmap, int bmpwidth, int bmpheight, double x, double y);	//given two values 0.0~1.0, returns the corresponding color in bitmap
 	vec3f getBitmapColorFromPixel(unsigned char* bitmap, int bmpwidth, int bmpheight, int x, int y);
+	double getPixelIntensity(unsigned char* bitmap, int bmpwidth, int bmpheight, int x, int y);
 
 	void setSoftShadow(bool sofSha);
 	bool getSoftShadow();
@@ -334,12 +342,19 @@ public:
 	void setHFColorImg(unsigned char* hfc);
 
 	void showHeightField();
+	void setTextureMapping(bool tm);
+	bool getTextureMapping();
+	bool	bumpMapping;
+
+	void preturbNormal(vec3f& normal, const ray& r, double& u, double& v);
+
 private:
     list<Geometry*> objects;
 	list<Geometry*> nonboundedobjects;
 	list<Geometry*> boundedobjects;
     list<Light*> lights;
     Camera camera;
+	bool textureMapping;
 	unsigned char* textureImg;	//texture image, shared with the one loaded to Trace UI
 	int textureWidth;
 	int textureHeight;

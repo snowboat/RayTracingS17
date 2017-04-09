@@ -260,6 +260,7 @@ vec3f Scene::getTextureColor(double x, double y)
 	return getBitmapColor(this->textureImg, this->textureWidth, this->textureHeight, x, y);
 }
 
+
 vec3f Scene::getBitmapColor(unsigned char * bitmap, int bmpwidth, int bmpheight, double x, double y)
 {
 	if (bitmap && x >= 0 && x <= 1 && y >= 0 && y <= 1) {
@@ -287,6 +288,12 @@ vec3f Scene::getBitmapColorFromPixel(unsigned char* bitmap, int bmpwidth, int bm
 	else {
 		return vec3f(0.0, 0.0, 0.0);
 	}
+}
+
+double Scene::getPixelIntensity(unsigned char * bitmap, int bmpwidth, int bmpheight, int x, int y)
+{
+	vec3f color =  getBitmapColorFromPixel(bitmap, bmpwidth, bmpheight, x, y);
+	return 0.299*color[0] + 0.587*color[1] + 0.114*color[2];
 }
 
 
@@ -406,6 +413,35 @@ void Scene::showHeightField()
 	//copy them to bounded object list
 	for (std::list<Geometry*>::iterator itr = this->objects.begin(); itr != this->objects.end(); itr++) {
 		this->boundedobjects.push_back(*itr);
+	}
+}
+
+void Scene::setTextureMapping(bool tm)
+{
+	this->textureMapping = tm;
+}
+
+bool Scene::getTextureMapping()
+{
+	return this->textureMapping;
+}
+
+void Scene::preturbNormal(vec3f& normal,const ray& r, double & u, double & v)
+{
+	if (textureImg) {
+		int pixelx = min(textureWidth - 1, int(u*double(textureWidth)));
+		int pixely = min(textureHeight - 1, int(v*double(textureHeight)));
+		double intensity = getPixelIntensity(this->textureImg, textureWidth, textureHeight, pixelx, pixely);
+		double intensityBelow = getPixelIntensity(textureImg, textureWidth, textureHeight, pixelx, min(pixely + 1, textureHeight - 1));
+		double intensityRight = getPixelIntensity(textureImg, textureWidth, textureHeight, max(pixelx-1, 0), pixely);
+
+		vec3f u = r.getDirection().cross(normal);
+		vec3f v = u.cross(normal);
+
+		normal = normal + 
+			(u.cross(normal) * (intensity - intensityBelow) + 
+			v.cross(normal) * (intensity - intensityRight));
+		normal  = normal.normalize();
 	}
 }
 

@@ -163,7 +163,7 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 				refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, !fromAir), m.kt);
 			}
 		}
-			return prod(m.shade(scene, r, i, m_pUI->getEnableTextureMapping()), (vec3f(1.0f, 1.0f, 1.0f) - m.kt)) + reflecColor + refracColor;
+			return prod(m.shade(scene, r, i), (vec3f(1.0f, 1.0f, 1.0f) - m.kt)) + reflecColor + refracColor;
 	
 	} else {
 		// No intersection. Return background color

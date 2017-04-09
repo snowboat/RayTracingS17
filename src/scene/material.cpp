@@ -28,20 +28,15 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 	// shading model, including the contributions of all the light sources.
     // You will need to call both distanceAttenuation() and shadowAttenuation()
     // somewhere in your code in order to compute shadows and light falloff.
-	return shade(scene, r, i, false);
-
-}
-
-
-//overloaded function to handle the shading in texture mapping
-vec3f Material::shade(Scene * scene, const ray & r, const isect & i, bool textureMap) const
-{
-	// iteration 0
+	
+	
+	
+	// iteration 0:emissive
 	vec3f I = ke;
-
-	// iteration 1
+	
+	// iteration 1: ambient illumination
 	I = I + elementMulti(ka, scene->ambientLight);
-	// iteration 2+3
+	// iteration 2+3 :specular and diffuse, multiplied by shadow+distance attenuation
 	typedef list<Light*>::const_iterator iter;
 	iter j;
 
@@ -51,33 +46,44 @@ vec3f Material::shade(Scene * scene, const ray & r, const isect & i, bool textur
 		vec3f V = r.getDirection();		//direction of eyeray
 		vec3f R = 2 * (-L*i.N)*i.N + L; //reflection direction of the light
 		vec3f lightColor = (**j).getColor(P);
-		
-		
+
+
 		vec3f Diffuse;
+		vec3f diffuseCoeff = this->kd;
+		
 		double u, v;
-		if (textureMap && i.obj->getLocalUV(r, i, u, v)) {
-			Diffuse = scene->getTextureColor(u, v);	
+		if (scene->getTextureMapping() && i.obj->getLocalUV(r, i, u, v)) {
+			vec3f newNormal = i.N;		//newNormal is used to do the diffuse shading. it will be pertubated in bumpmappingcase and keeps unchanged in non-bumpmapping case
+			diffuseCoeff = scene->getTextureColor(u, v);
+			isect icopy = i;
+
+			if (scene->bumpMapping && i.obj->preturbNormal(r, icopy, u, v, scene->getTexture(), scene->getTextureWidth(), scene->getTextureHeight(), scene)) {
+				newNormal = icopy.N;
+				//Diffuse = this->kd *max(0.0, L*newNormal);
+				cout << "diffuse color " << Diffuse << endl;
+			}
+			
+			Diffuse = diffuseCoeff * max(0.0, L*newNormal);	//if the shape of i.obj doesn't support texture mapping, then diffuse color is still the original one.
+		
 		}
 		else {
-			Diffuse = kd * max(0.0, L*i.N);	//if the shape of i.obj doesn't support texture mapping, then diffuse color is still the original one.
+			Diffuse = diffuseCoeff * max(0.0, L*i.N);	//if the shape of i.obj doesn't support texture mapping, then diffuse color is still the original one.
 		}
-	
+
+
 		vec3f Specular = ks*pow(max(0.0, V*R), shininess * 128);
-	
+
 
 		vec3f Attenuation;
 		//if soft shadow is enabled, use "soft shadow attenuation" instead.
 		if (scene->getSoftShadow()) {
-			Attenuation = (*j)->distanceAttenuation(P)*   prod( (*j)->shadowAttenuationSoft(P, scene->getSoftShadowCoeff()), (*j)->getColor(P));
+			Attenuation = (*j)->distanceAttenuation(P)*   prod((*j)->shadowAttenuationSoft(P, scene->getSoftShadowCoeff()), (*j)->getColor(P));
 		}
 		else {
-			 Attenuation = (*j)->distanceAttenuation(P)*   prod((*j)->shadowAttenuation(P), (*j)->getColor(P));
+			Attenuation = (*j)->distanceAttenuation(P)*   prod((*j)->shadowAttenuation(P), (*j)->getColor(P));
 		}
-		I = I + elementMulti(Attenuation, Diffuse + Specular);
+		I += elementMulti(Attenuation, Diffuse + Specular);
 	}
 
 	return I;
 }
-
-
-

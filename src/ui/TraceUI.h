@@ -49,6 +49,7 @@ public:
 	Fl_Slider*			m_softshadowCoeffSlider;
 	Fl_Light_Button*	m_glossyReflectionButton;
 	Fl_Light_Button*	m_motionBlurButton;
+	Fl_Light_Button*	m_bumpMappingButton;
 
 
 
@@ -83,6 +84,7 @@ public:
 	double		getSoftshadowCoeff();
 	bool		getGlossyReflection();
 	bool		getMotionBlur();
+	bool		getBumpMapping();
 private:
 	RayTracer*	raytracer;
 
@@ -101,6 +103,7 @@ private:
 	bool		m_enableSoftShadow;
 	bool		m_glossyReflection;
 	bool		m_motionBlur;
+	bool		m_bumpMapping;
 
 	double		focalLength;
 	double		aperture;
@@ -145,6 +148,7 @@ private:
 	static void cb_softshadowCoeffSlides(Fl_Widget* o, void* v);
 	static void cb_glossyReflection(Fl_Widget* o, void* v);
 	static void cb_motionBlur(Fl_Widget* o, void* v);
+	static void cb_bumpMapping(Fl_Widget* o, void* v);
 	static void cb_generateHeightField(Fl_Widget* o, void* v);
 
 	static void cb_render(Fl_Widget* o, void* v);

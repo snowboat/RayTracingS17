@@ -44,6 +44,7 @@ void TraceUI::cb_load_scene(Fl_Menu_* o, void* v)
 			pUI->raytracer->getScene()->setTexture(pUI->textureImg);
 			pUI->raytracer->getScene()->setTextureWidth(pUI->textureWidth);
 			pUI->raytracer->getScene()->setTextureHeight(pUI->textureHeight);
+			pUI->raytracer->getScene()->setTextureMapping(pUI->m_enableTextureMapping);
 
 			//sync the distributed ray tracing options to the newly loaded scene
 			pUI->raytracer->getScene()->setSoftShadow(pUI->m_enableSoftShadow);
@@ -52,7 +53,7 @@ void TraceUI::cb_load_scene(Fl_Menu_* o, void* v)
 			pUI->raytracer->getScene()->setMotionBlur(pUI->m_motionBlur);
 			pUI->raytracer->getScene()->setHFColorImg(pUI->hfColorImg);
 			pUI->raytracer->getScene()->setHFIntensityImg(pUI->hfIntensityImg, pUI->hfWidth, pUI->hfHeight);
-
+			pUI->raytracer->getScene()->bumpMapping = pUI->m_bumpMapping;
 			
 
 		} else{
@@ -292,6 +293,10 @@ void TraceUI::cb_enableTextureMapping(Fl_Widget * o, void * v)
 {
 	TraceUI* pUI = (TraceUI*)(o->user_data());
 	pUI->m_enableTextureMapping = bool(((Fl_Light_Button *)o)->value());
+	//sync to current scene (if any)
+	if (pUI->raytracer->sceneLoaded()) {
+		pUI->raytracer->getScene()->setTextureMapping(pUI->m_enableTextureMapping);
+	}
 }
 
 void TraceUI::cb_enableSoftShadow(Fl_Widget * o, void * v)
@@ -355,6 +360,17 @@ void TraceUI::cb_motionBlur(Fl_Widget * o, void * v)
 	if (pUI->raytracer->sceneLoaded()) {
 		pUI->raytracer->getScene()->setMotionBlur(pUI->m_motionBlur);
 	}
+}
+
+void TraceUI::cb_bumpMapping(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+	pUI->m_bumpMapping = bool(((Fl_Light_Button *)o)->value());
+	if (pUI->raytracer->sceneLoaded()) {
+		pUI->raytracer->getScene()->bumpMapping = pUI->m_bumpMapping;
+	}
+
+
 }
 
 void TraceUI::cb_generateHeightField(Fl_Widget * o, void * v)
@@ -585,6 +601,7 @@ TraceUI::TraceUI() {
 	hfColorImg = nullptr;
 	hfWidth = 0;
 	hfHeight = 0;
+	m_bumpMapping = false;
 
 	m_mainWindow = new Fl_Window(100, 40, 400, 400, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
@@ -714,6 +731,8 @@ TraceUI::TraceUI() {
 		m_motionBlurButton->value(m_motionBlur);
 		m_motionBlurButton->callback(cb_motionBlur);
 
+
+
 		//focal length slider
 		m_focalLengthSlider = new Fl_Value_Slider(10, 230, 180, 20, "Focal length");
 		m_focalLengthSlider->user_data((void*)(this));	// record self to be used by static callback functions
@@ -772,6 +791,12 @@ TraceUI::TraceUI() {
 		m_generateHeightFieldButton->user_data((void*)(this));
 		m_generateHeightFieldButton->callback(cb_generateHeightField);
 		m_generateHeightFieldButton->deactivate();
+
+		//Bump Mapping
+		m_bumpMappingButton = new Fl_Light_Button(220, 305, 110, 25, "&BumpMapping");
+		m_bumpMappingButton->user_data((void*)(this));   // record self to be used by static callback functions
+		m_bumpMappingButton->value(m_bumpMapping);
+		m_bumpMappingButton->callback(cb_bumpMapping);
 
 		m_renderButton = new Fl_Button(240, 27, 70, 25, "&Render");
 		m_renderButton->user_data((void*)(this));
