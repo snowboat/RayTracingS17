@@ -39,6 +39,8 @@ void TraceUI::cb_load_scene(Fl_Menu_* o, void* v)
 			pUI->raytracer->getScene()->constAttenFactor = pUI->m_constAttenFactor;
 			pUI->raytracer->getScene()->linearAttenFactor = pUI->m_linearAttenFactor;
 			pUI->raytracer->getScene()->quadAttenFactor = pUI->m_quadAttenFactor;
+			//sync termination threshold
+			pUI->raytracer->getScene()->setTerminationThreshold(pUI->m_terminationIntensity);
 
 			//share the texture image to the scene
 			pUI->raytracer->getScene()->setTexture(pUI->textureImg);
@@ -325,6 +327,17 @@ void TraceUI::cb_focalLengthSlides(Fl_Widget * o, void * v)
 	pUI->focalLength = double(((Fl_Slider *)o)->value());
 }
 
+void TraceUI::cb_adaptiveTerminationSlides(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+	pUI->m_terminationIntensity = double(((Fl_Slider *)o)->value());
+	//sync this value to scene if any
+	if (pUI->raytracer->sceneLoaded()) {
+		pUI->raytracer->getScene()->setTerminationThreshold(pUI->m_terminationIntensity);
+	}
+
+}
+
 void TraceUI::cb_apertureSlides(Fl_Widget * o, void * v)
 {
 	TraceUI* pUI = (TraceUI*)(o->user_data());
@@ -602,6 +615,7 @@ TraceUI::TraceUI() {
 	hfWidth = 0;
 	hfHeight = 0;
 	m_bumpMapping = false;
+	m_terminationIntensity = 1.0;
 
 	m_mainWindow = new Fl_Window(100, 40, 400, 400, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
@@ -651,30 +665,30 @@ TraceUI::TraceUI() {
 
 
 		// install linear attenuation slider
-		m_constAttenSlider = new Fl_Value_Slider(10, 105, 180, 20, "Attenuation, Linear");
-		m_constAttenSlider->user_data((void*)(this));	// record self to be used by static callback functions
-		m_constAttenSlider->type(FL_HOR_NICE_SLIDER);
-		m_constAttenSlider->labelfont(FL_COURIER);
-		m_constAttenSlider->labelsize(12);
-		m_constAttenSlider->minimum(0.00);
-		m_constAttenSlider->maximum(5.00);
-		m_constAttenSlider->step(0.01);
-		m_constAttenSlider->value(m_linearAttenFactor);
-		m_constAttenSlider->align(FL_ALIGN_RIGHT);
-		m_constAttenSlider->callback(cb_linearAttenSlides);
+		m_linearAttenSlider = new Fl_Value_Slider(10, 105, 180, 20, "Attenuation, Linear");
+		m_linearAttenSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_linearAttenSlider->type(FL_HOR_NICE_SLIDER);
+		m_linearAttenSlider->labelfont(FL_COURIER);
+		m_linearAttenSlider->labelsize(12);
+		m_linearAttenSlider->minimum(0.00);
+		m_linearAttenSlider->maximum(5.00);
+		m_linearAttenSlider->step(0.01);
+		m_linearAttenSlider->value(m_linearAttenFactor);
+		m_linearAttenSlider->align(FL_ALIGN_RIGHT);
+		m_linearAttenSlider->callback(cb_linearAttenSlides);
 
 		// install slider size
-		m_constAttenSlider = new Fl_Value_Slider(10, 130, 180, 20, "Attenuation, Quadratic");
-		m_constAttenSlider->user_data((void*)(this));	// record self to be used by static callback functions
-		m_constAttenSlider->type(FL_HOR_NICE_SLIDER);
-		m_constAttenSlider->labelfont(FL_COURIER);
-		m_constAttenSlider->labelsize(12);
-		m_constAttenSlider->minimum(0.00);
-		m_constAttenSlider->maximum(5.00);
-		m_constAttenSlider->step(0.01);
-		m_constAttenSlider->value(m_quadAttenFactor);
-		m_constAttenSlider->align(FL_ALIGN_RIGHT);
-		m_constAttenSlider->callback(cb_quadAttenSlides);
+		m_quadAttenSlider = new Fl_Value_Slider(10, 130, 180, 20, "Attenuation, Quadratic");
+		m_quadAttenSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_quadAttenSlider->type(FL_HOR_NICE_SLIDER);
+		m_quadAttenSlider->labelfont(FL_COURIER);
+		m_quadAttenSlider->labelsize(12);
+		m_quadAttenSlider->minimum(0.00);
+		m_quadAttenSlider->maximum(5.00);
+		m_quadAttenSlider->step(0.01);
+		m_quadAttenSlider->value(m_quadAttenFactor);
+		m_quadAttenSlider->align(FL_ALIGN_RIGHT);
+		m_quadAttenSlider->callback(cb_quadAttenSlides);
 
 		//use background image or not
 		m_enableBackgroundButton = new Fl_Light_Button(10, 155, 100, 25, "&Background?");
@@ -797,6 +811,19 @@ TraceUI::TraceUI() {
 		m_bumpMappingButton->user_data((void*)(this));   // record self to be used by static callback functions
 		m_bumpMappingButton->value(m_bumpMapping);
 		m_bumpMappingButton->callback(cb_bumpMapping);
+
+		// Adaptive Termination Threshold Slider
+		m_adaptiveTerminationSlider = new Fl_Value_Slider(10, 330, 180, 20, "Adaptive Termination");
+		m_adaptiveTerminationSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_adaptiveTerminationSlider->type(FL_HOR_NICE_SLIDER);
+		m_adaptiveTerminationSlider->labelfont(FL_COURIER);
+		m_adaptiveTerminationSlider->labelsize(12);
+		m_adaptiveTerminationSlider->minimum(0.00);
+		m_adaptiveTerminationSlider->maximum(1.00);
+		m_adaptiveTerminationSlider->step(0.01);
+		m_adaptiveTerminationSlider->value(m_terminationIntensity);
+		m_adaptiveTerminationSlider->align(FL_ALIGN_RIGHT);
+		m_adaptiveTerminationSlider->callback(cb_adaptiveTerminationSlides);
 
 		m_renderButton = new Fl_Button(240, 27, 70, 25, "&Render");
 		m_renderButton->user_data((void*)(this));

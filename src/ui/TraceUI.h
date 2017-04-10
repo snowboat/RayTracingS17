@@ -50,6 +50,7 @@ public:
 	Fl_Light_Button*	m_glossyReflectionButton;
 	Fl_Light_Button*	m_motionBlurButton;
 	Fl_Light_Button*	m_bumpMappingButton;
+	Fl_Slider*			m_adaptiveTerminationSlider;
 
 
 
@@ -104,6 +105,7 @@ private:
 	bool		m_glossyReflection;
 	bool		m_motionBlur;
 	bool		m_bumpMapping;
+	double		m_terminationIntensity;
 
 	double		focalLength;
 	double		aperture;
@@ -144,6 +146,7 @@ private:
 	static void cb_enableSoftShadow(Fl_Widget* o, void* v);
 	static void cb_numSubPixelsSlides(Fl_Widget* o, void* v);
 	static void cb_focalLengthSlides(Fl_Widget* o, void* v);
+	static void cb_adaptiveTerminationSlides(Fl_Widget* o, void* v);
 	static void cb_apertureSlides(Fl_Widget* o, void* v);
 	static void cb_softshadowCoeffSlides(Fl_Widget* o, void* v);
 	static void cb_glossyReflection(Fl_Widget* o, void* v);

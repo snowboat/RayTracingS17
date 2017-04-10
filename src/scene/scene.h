@@ -288,6 +288,7 @@ public:
 		textureImg = NULL;
 		heightFieldColor = NULL;
 		heightFieldIntensity = nullptr;
+		terminationThreshold = 1.0;
 	}
 	virtual ~Scene();
 
@@ -347,6 +348,9 @@ public:
 	bool	bumpMapping;
 
 	void preturbNormal(vec3f& normal, const ray& r, double& u, double& v);
+	
+	double getTerimnationThreshold();
+	void setTerminationThreshold(double terThresh);
 
 private:
     list<Geometry*> objects;
@@ -368,6 +372,7 @@ private:
 	unsigned char* heightFieldColor;
 	int hfWidth;
 	int hfHeight;
+	double terminationThreshold;
 
 	// Each object in the scene, provided that it has hasBoundingBoxCapability(),
 	// must fall within this bounding box.  Objects that don't have hasBoundingBoxCapability()

@@ -445,6 +445,16 @@ void Scene::preturbNormal(vec3f& normal,const ray& r, double & u, double & v)
 	}
 }
 
+double Scene::getTerimnationThreshold()
+{
+	return terminationThreshold;
+}
+
+void Scene::setTerminationThreshold(double terThresh)
+{
+	this->terminationThreshold = terThresh;
+}
+
 mat4f TransformNode::getXform()
 {
 	return this->xform;

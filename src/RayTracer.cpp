@@ -25,6 +25,8 @@ double degreeRadian(vec3f v1, vec3f v2) {
 // in an initial ray weight of (0.0,0.0,0.0) and an initial recursion depth of 0.
 vec3f RayTracer::trace( Scene *scene, double x, double y )
 {
+	vec3f thresh(scene->getTerimnationThreshold(), scene->getTerimnationThreshold(), scene->getTerimnationThreshold());
+
 	if (m_pUI->getEnableDepthofField()) {
 		ray primRay(vec3f(0, 0, 0), vec3f(0, 0, 0));
 		scene->getCamera()->rayThrough(x, y, primRay);
@@ -38,7 +40,7 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 			vec3f randomPoint = camPosition + ((double(rand()) / double(RAND_MAX)) * aperture) * scene->getCamera()->getv();
 			vec3f secondaryDir = (focalPoint - randomPoint).normalize();
 			ray secondaryRay(randomPoint, secondaryDir);
-			tracedColor += traceRay(scene, secondaryRay, vec3f(1.0, 1.0, 1.0), 0, true).clamp();
+			tracedColor += traceRay(scene, secondaryRay, thresh, 0, true).clamp();
 		}
 
 		return tracedColor / 100.0;
@@ -72,7 +74,7 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 			//trace a ray normally
 			ray r(vec3f(0, 0, 0), vec3f(0, 0, 0));
 			scene->getCamera()->rayThrough(x, y, r);
-			tracedColor += traceRay(scene, r, vec3f(1.0, 1.0, 1.0), 0, true).clamp();
+			tracedColor += traceRay(scene, r, thresh, 0, true).clamp();
 		}
 		//restore the xforms after finishing up this pixel
 		int counter = 0;
@@ -89,7 +91,7 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 		
 		ray r(vec3f(0, 0, 0), vec3f(0, 0, 0));
 		scene->getCamera()->rayThrough(x, y, r);
-		vec3f tracedColor = traceRay(scene, r, vec3f(1.0, 1.0, 1.0), 0, true).clamp();
+		vec3f tracedColor = traceRay(scene, r, thresh, 0, true).clamp();
 		return tracedColor;
 	}
 
@@ -115,55 +117,57 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		// rays.
 
 		const Material& m = i.getMaterial();
-		//cout << "dotproduct " << i.N.dot(-r.getDirection()) << endl;
 
-		// Reflection component
+		//Direct component 
+		vec3f directColor = prod(m.shade(scene, r, i), (vec3f(1.0f, 1.0f, 1.0f) - m.kt));
 		vec3f reflecColor = { 0.0f,0.0f,0.0f };
-
-		if (scene->getGlossyReflection() && depth<depthLimit) {
-
-			ray reflecRay(r.at(i.t), (2 * (i.N.dot(-r.getDirection()))*i.N + r.getDirection()).normalize());
-			vec3f primDirection = reflecRay.getDirection();
-			for (int j = 0; j < 100; j++) {
-				vec3f uDistortion = primDirection.cross(i.N).normalize() * (double(rand()) * 0.1 / double(RAND_MAX));
-				vec3f vDistortion = primDirection.cross(uDistortion).normalize() * (double(rand()) * 0.1/ double(RAND_MAX));
-				ray secondaryRay(r.at(i.t), primDirection + uDistortion + vDistortion);
-				reflecColor += prod(traceRay(scene, secondaryRay, thresh, depth + 1, fromAir), m.kr);
-			}
-			reflecColor /= 100.0;
-		}
-		else {
-			ray reflecRay(r.at(i.t), (2 * (i.N.dot(-r.getDirection()))*i.N + r.getDirection()).normalize());
-			if (depth < depthLimit) {
-				reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1, fromAir), m.kr);
-			}
-		}
-
-
-
-
-		// Refractive component
-		double mu = 1.0;
-		if (fromAir) {	  //Air into object
-			mu = 1.0 / m.index;
-		}
-		else {
-			mu = m.index;
-		}
-		double criticalSin =	1/mu;	//sine of critical angle
-		double cosphi = i.N.dot(-r.getDirection());
-		double phi = acos(cosphi);
 		vec3f refracColor = { 0.0f, 0.0f, 0.0f };
-		if ( criticalSin - sin(phi) > RAY_EPSILON) {	//no TIR
-			double theta = asin(sin(phi) * mu);
-			double costheta = cos(theta);			
-			vec3f newDirection = (mu * r.getDirection() - (costheta - mu*cosphi) * i.N).normalize();
-			ray refracRay(r.at(i.t), newDirection);
-			if (depth < depthLimit) {
-				refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, !fromAir), m.kt);
+
+		if (directColor.length() >= thresh.length()) {
+			if (scene->getGlossyReflection() && depth<depthLimit) {
+				ray reflecRay(r.at(i.t), (2 * (i.N.dot(-r.getDirection()))*i.N + r.getDirection()).normalize());
+				vec3f primDirection = reflecRay.getDirection();
+				for (int j = 0; j < 100; j++) {
+					vec3f uDistortion = primDirection.cross(i.N).normalize() * (double(rand()) * 0.1 / double(RAND_MAX));
+					vec3f vDistortion = primDirection.cross(uDistortion).normalize() * (double(rand()) * 0.1 / double(RAND_MAX));
+					ray secondaryRay(r.at(i.t), primDirection + uDistortion + vDistortion);
+					reflecColor += prod(traceRay(scene, secondaryRay, thresh, depth + 1, fromAir), m.kr);
+				}
+				reflecColor /= 100.0;
+			}
+			else {
+				ray reflecRay(r.at(i.t), (2 * (i.N.dot(-r.getDirection()))*i.N + r.getDirection()).normalize());
+				if (depth < depthLimit) {
+					reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1, fromAir), m.kr);
+				}
+			}
+
+
+
+
+			// Refractive component
+			double mu = 1.0;
+			if (fromAir) {	  //Air into object
+				mu = 1.0 / m.index;
+			}
+			else {
+				mu = m.index;
+			}
+			double criticalSin = 1 / mu;	//sine of critical angle
+			double cosphi = i.N.dot(-r.getDirection());
+			double phi = acos(cosphi);
+			if (criticalSin - sin(phi) > RAY_EPSILON) {	//no TIR
+				double theta = asin(sin(phi) * mu);
+				double costheta = cos(theta);
+				vec3f newDirection = (mu * r.getDirection() - (costheta - mu*cosphi) * i.N).normalize();
+				ray refracRay(r.at(i.t), newDirection);
+				if (depth < depthLimit) {
+					refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, !fromAir), m.kt);
+				}
 			}
 		}
-			return prod(m.shade(scene, r, i), (vec3f(1.0f, 1.0f, 1.0f) - m.kt)) + reflecColor + refracColor;
+
+			return directColor + reflecColor + refracColor;
 	
 	} else {
 		// No intersection. Return background color
