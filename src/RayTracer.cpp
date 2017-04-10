@@ -26,6 +26,8 @@ double degreeRadian(vec3f v1, vec3f v2) {
 vec3f RayTracer::trace( Scene *scene, double x, double y )
 {
 	vec3f thresh(scene->getTerimnationThreshold(), scene->getTerimnationThreshold(), scene->getTerimnationThreshold());
+	std::stack<const SceneObject*> objStack;	//empty stack for tracking overlapping objects
+	std::stack<isect> isectStack;	//empty stack for tracking overlapping objects
 
 	if (m_pUI->getEnableDepthofField()) {
 		ray primRay(vec3f(0, 0, 0), vec3f(0, 0, 0));
@@ -40,7 +42,7 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 			vec3f randomPoint = camPosition + ((double(rand()) / double(RAND_MAX)) * aperture) * scene->getCamera()->getv();
 			vec3f secondaryDir = (focalPoint - randomPoint).normalize();
 			ray secondaryRay(randomPoint, secondaryDir);
-			tracedColor += traceRay(scene, secondaryRay, thresh, 0, true).clamp();
+			tracedColor += traceRay(scene, secondaryRay, thresh, 0, true, objStack, 1.0, isectStack ).clamp();
 		}
 
 		return tracedColor / 100.0;
@@ -74,7 +76,7 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 			//trace a ray normally
 			ray r(vec3f(0, 0, 0), vec3f(0, 0, 0));
 			scene->getCamera()->rayThrough(x, y, r);
-			tracedColor += traceRay(scene, r, thresh, 0, true).clamp();
+			tracedColor += traceRay(scene, r, thresh, 0, true, objStack,1.0, isectStack).clamp();
 		}
 		//restore the xforms after finishing up this pixel
 		int counter = 0;
@@ -91,7 +93,7 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 		
 		ray r(vec3f(0, 0, 0), vec3f(0, 0, 0));
 		scene->getCamera()->rayThrough(x, y, r);
-		vec3f tracedColor = traceRay(scene, r, thresh, 0, true).clamp();
+		vec3f tracedColor = traceRay(scene, r, thresh, 0, true, objStack,1.0 ,isectStack).clamp();
 		return tracedColor;
 	}
 
@@ -100,13 +102,14 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 // Do recursive ray tracing!  You'll want to insert a lot of code here
 // (or places called from here) to handle reflection, refraction, etc etc.
 vec3f RayTracer::traceRay( Scene *scene, const ray& r, 
-	const vec3f& thresh, int depth, bool fromAir)
+	const vec3f& thresh, int depth, bool fromAir,
+	std::stack<const SceneObject*> objStack, double currIndex, std::stack<isect> isectStack)
 {
 	isect i;
 
 	if( scene->intersect( r, i ) ) {
 		// YOUR CODE HERE
-
+		
 		// An intersection occured!  We've got work to do.  For now,
 		// this code gets the material for the surface that was intersected,
 		// and asks that material to provide a color for the ray.  
@@ -123,6 +126,8 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		vec3f reflecColor = { 0.0f,0.0f,0.0f };
 		vec3f refracColor = { 0.0f, 0.0f, 0.0f };
 
+
+		//reflective component
 		if (directColor.length() >= thresh.length()) {
 			if (scene->getGlossyReflection() && depth<depthLimit) {
 				ray reflecRay(r.at(i.t), (2 * (i.N.dot(-r.getDirection()))*i.N + r.getDirection()).normalize());
@@ -131,14 +136,14 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 					vec3f uDistortion = primDirection.cross(i.N).normalize() * (double(rand()) * 0.1 / double(RAND_MAX));
 					vec3f vDistortion = primDirection.cross(uDistortion).normalize() * (double(rand()) * 0.1 / double(RAND_MAX));
 					ray secondaryRay(r.at(i.t), primDirection + uDistortion + vDistortion);
-					reflecColor += prod(traceRay(scene, secondaryRay, thresh, depth + 1, fromAir), m.kr);
+					reflecColor += prod(traceRay(scene, secondaryRay, thresh, depth + 1, fromAir, objStack, 1.0 ,isectStack), m.kr);
 				}
 				reflecColor /= 100.0;
 			}
 			else {
 				ray reflecRay(r.at(i.t), (2 * (i.N.dot(-r.getDirection()))*i.N + r.getDirection()).normalize());
 				if (depth < depthLimit) {
-					reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1, fromAir), m.kr);
+					reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1, fromAir,objStack,1.0 ,isectStack), m.kr);
 				}
 			}
 
@@ -146,13 +151,27 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 
 
 			// Refractive component
-			double mu = 1.0;
-			if (fromAir) {	  //Air into object
-				mu = 1.0 / m.index;
+			double indexofNextMedium;
+			if (!isectStack.empty() && isectStack.top().obj == i.obj) {	//leaving this object
+				isectStack.pop();
+				if (isectStack.empty())
+					indexofNextMedium = 1.0;	//back into air, since the only element was poped
+				else
+					indexofNextMedium = isectStack.top().getMaterial().index;
 			}
-			else {
-				mu = m.index;
+			else {	//entering another object
+				isectStack.push(i);
+				indexofNextMedium = m.index;
 			}
+			double mu = currIndex / indexofNextMedium;
+
+			//double mu;
+			//if (fromAir) {	  //Air into object
+			//	mu = 1.0 / m.index;
+			//}
+			//else {	//medium into air
+			//	mu = m.index;
+			//}
 			double criticalSin = 1 / mu;	//sine of critical angle
 			double cosphi = i.N.dot(-r.getDirection());
 			double phi = acos(cosphi);
@@ -162,7 +181,7 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 				vec3f newDirection = (mu * r.getDirection() - (costheta - mu*cosphi) * i.N).normalize();
 				ray refracRay(r.at(i.t), newDirection);
 				if (depth < depthLimit) {
-					refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, !fromAir), m.kt);
+					refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, !fromAir, objStack, indexofNextMedium, isectStack	), m.kt);
 				}
 			}
 		}

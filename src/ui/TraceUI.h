@@ -51,6 +51,7 @@ public:
 	Fl_Light_Button*	m_motionBlurButton;
 	Fl_Light_Button*	m_bumpMappingButton;
 	Fl_Slider*			m_adaptiveTerminationSlider;
+	Fl_Slider*			m_ambientLightSlider;
 
 
 
@@ -111,6 +112,8 @@ private:
 	double		aperture;
 	double		softshadowCoeff;
 
+	double		ambientLight; //(this value is gonna be used for all three channels)
+
 	unsigned char* hfIntensityImg;
 	unsigned char* hfColorImg;
 	int hfHeight;
@@ -149,6 +152,7 @@ private:
 	static void cb_adaptiveTerminationSlides(Fl_Widget* o, void* v);
 	static void cb_apertureSlides(Fl_Widget* o, void* v);
 	static void cb_softshadowCoeffSlides(Fl_Widget* o, void* v);
+	static void cb_ambientLightSlides(Fl_Widget* o, void* v);
 	static void cb_glossyReflection(Fl_Widget* o, void* v);
 	static void cb_motionBlur(Fl_Widget* o, void* v);
 	static void cb_bumpMapping(Fl_Widget* o, void* v);

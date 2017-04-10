@@ -1,7 +1,7 @@
 ﻿  RayTracer.cpp
 c:\users\samuel he\source\repos\raytracings17\src\fileio/parse.h(180): warning C4018: '<': signed/unsigned mismatch
-src\RayTracer.cpp(249): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-src\RayTracer.cpp(250): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+src\RayTracer.cpp(268): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+src\RayTracer.cpp(269): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
 fltk.lib(case.obj) : warning LNK4204: 'C:\Users\Samuel He\Source\Repos\RayTracingS17\Release\vc140.pdb' is missing debugging information for referencing module; linking object as if no debug info
 fltk.lib(filename_absolute.obj) : warning LNK4204: 'C:\Users\Samuel He\Source\Repos\RayTracingS17\Release\vc140.pdb' is missing debugging information for referencing module; linking object as if no debug info
 fltk.lib(filename_expand.obj) : warning LNK4204: 'C:\Users\Samuel He\Source\Repos\RayTracingS17\Release\vc140.pdb' is missing debugging information for referencing module; linking object as if no debug info

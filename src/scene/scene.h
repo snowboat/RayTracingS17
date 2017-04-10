@@ -277,7 +277,7 @@ public:
     TransformRoot transformRoot;
 
 	// Ia
-	vec3f ambientLight;
+	vec3f ambientLight;	//TODO: ADD SLIDER TO CONTRol
 
 public:
 	Scene() 
@@ -289,6 +289,7 @@ public:
 		heightFieldColor = NULL;
 		heightFieldIntensity = nullptr;
 		terminationThreshold = 1.0;
+		ambientLight = vec3f(1.0, 1.0, 1.0);
 	}
 	virtual ~Scene();
 

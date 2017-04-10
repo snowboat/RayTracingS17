@@ -355,6 +355,17 @@ void TraceUI::cb_softshadowCoeffSlides(Fl_Widget * o, void * v)
 	}
 }
 
+void TraceUI::cb_ambientLightSlides(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+	pUI->ambientLight = double(((Fl_Slider *)o)->value());
+
+	//sync this value to scene if any
+	if (pUI->raytracer->sceneLoaded()) {
+		pUI->raytracer->getScene()->ambientLight = vec3f(pUI->ambientLight, pUI->ambientLight, pUI->ambientLight);
+	}
+}
+
 void TraceUI::cb_glossyReflection(Fl_Widget * o, void * v)
 {
 	TraceUI* pUI = (TraceUI*)(o->user_data());
@@ -615,7 +626,8 @@ TraceUI::TraceUI() {
 	hfWidth = 0;
 	hfHeight = 0;
 	m_bumpMapping = false;
-	m_terminationIntensity = 1.0;
+	m_terminationIntensity = 0.0;
+	ambientLight = 1.0;
 
 	m_mainWindow = new Fl_Window(100, 40, 400, 400, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
@@ -824,6 +836,19 @@ TraceUI::TraceUI() {
 		m_adaptiveTerminationSlider->value(m_terminationIntensity);
 		m_adaptiveTerminationSlider->align(FL_ALIGN_RIGHT);
 		m_adaptiveTerminationSlider->callback(cb_adaptiveTerminationSlides);
+
+		// Ambient Light
+		m_ambientLightSlider = new Fl_Value_Slider(10, 355, 180, 20, "Ambient Light");
+		m_ambientLightSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_ambientLightSlider->type(FL_HOR_NICE_SLIDER);
+		m_ambientLightSlider->labelfont(FL_COURIER);
+		m_ambientLightSlider->labelsize(12);
+		m_ambientLightSlider->minimum(0.00);
+		m_ambientLightSlider->maximum(1.00);
+		m_ambientLightSlider->step(0.01);
+		m_ambientLightSlider->value(ambientLight);
+		m_ambientLightSlider->align(FL_ALIGN_RIGHT);
+		m_ambientLightSlider->callback(cb_ambientLightSlides);
 
 		m_renderButton = new Fl_Button(240, 27, 70, 25, "&Render");
 		m_renderButton->user_data((void*)(this));
