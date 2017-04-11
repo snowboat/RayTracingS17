@@ -26,6 +26,11 @@ void Trimesh::addNormal( const vec3f &n )
     normals.push_back( n );
 }
 
+vector<TrimeshFace*> Trimesh::getFaces()
+{
+	return this->faces;
+}
+
 bool Trimesh::getLocalUV(const ray & r, const isect & i, double & u, double & v) const
 {
 	return false;
@@ -56,6 +61,15 @@ char* Trimesh::doubleCheck()
         return "Bad Trimesh: Wrong number of normals.";
 
     return 0;
+}
+
+bool Trimesh::doubleCheckTrueorFalse() {
+	if (materials.size() && materials.size() != vertices.size())
+		return false;
+	if (normals.size() && normals.size() != vertices.size())
+		return false;
+
+	return true;
 }
 
 // Intersect ray r with the triangle abc.  If it hits returns true,
@@ -134,9 +148,11 @@ bool TrimeshFace::intersectLocal( const ray& r, isect& i ) const
 
 		
     }
-	//FLIP THE NORMAL IF NECESSARY
-	if (r.getDirection().dot(i.N) > 0)
-		i.N *= -1.0;
+
+
+	////FLIP THE NORMAL IF NECESSARY
+	//if (r.getDirection().dot(i.N) > 0)
+	//	i.N *= -1.0;
 
 
     i.obj = this;

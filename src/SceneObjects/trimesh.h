@@ -34,6 +34,7 @@ public:
     void addMaterial( Material *m );	//materials second
     void addNormal( const vec3f & );	//normals third
 	
+	vector<TrimeshFace*> getFaces();
 	
 	virtual bool getLocalUV(const ray& r, const isect& i, double& u, double& v) const;	// returns true only if this sceneobject supports texture mapping
 
@@ -41,6 +42,8 @@ public:
     bool addFace( int a, int b, int c );
 
     char *doubleCheck();
+
+	bool doubleCheckTrueorFalse();	//my version of doubleCheck. I think it's better.
     
     void generateNormals();
 };

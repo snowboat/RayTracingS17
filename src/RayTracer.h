@@ -17,7 +17,7 @@ public:
 
     vec3f trace( Scene *scene, double x, double y );
 	vec3f traceRay( Scene *scene, const ray& r, const vec3f& thresh, int depth,
-		bool fromAir, std::stack<const SceneObject*> objStack, double indexofCurrMedium, std::stack<isect> isectStack);
+		double currIndex,std::stack<isect> isectStack);
 
 
 	void getBuffer( unsigned char *&buf, int &w, int &h );

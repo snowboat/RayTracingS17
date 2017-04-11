@@ -42,7 +42,7 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 			vec3f randomPoint = camPosition + ((double(rand()) / double(RAND_MAX)) * aperture) * scene->getCamera()->getv();
 			vec3f secondaryDir = (focalPoint - randomPoint).normalize();
 			ray secondaryRay(randomPoint, secondaryDir);
-			tracedColor += traceRay(scene, secondaryRay, thresh, 0, true, objStack, 1.0, isectStack ).clamp();
+			tracedColor += traceRay(scene, secondaryRay, thresh, 0,  1.0, isectStack ).clamp();
 		}
 
 		return tracedColor / 100.0;
@@ -76,7 +76,7 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 			//trace a ray normally
 			ray r(vec3f(0, 0, 0), vec3f(0, 0, 0));
 			scene->getCamera()->rayThrough(x, y, r);
-			tracedColor += traceRay(scene, r, thresh, 0, true, objStack,1.0, isectStack).clamp();
+			tracedColor += traceRay(scene, r, thresh, 0,1.0, isectStack).clamp();
 		}
 		//restore the xforms after finishing up this pixel
 		int counter = 0;
@@ -93,7 +93,7 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 		
 		ray r(vec3f(0, 0, 0), vec3f(0, 0, 0));
 		scene->getCamera()->rayThrough(x, y, r);
-		vec3f tracedColor = traceRay(scene, r, thresh, 0, true, objStack,1.0 ,isectStack).clamp();
+		vec3f tracedColor = traceRay(scene, r, thresh, 0,1.0 ,isectStack).clamp();
 		return tracedColor;
 	}
 
@@ -102,8 +102,7 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 // Do recursive ray tracing!  You'll want to insert a lot of code here
 // (or places called from here) to handle reflection, refraction, etc etc.
 vec3f RayTracer::traceRay( Scene *scene, const ray& r, 
-	const vec3f& thresh, int depth, bool fromAir,
-	std::stack<const SceneObject*> objStack, double currIndex, std::stack<isect> isectStack)
+	const vec3f& thresh, int depth,  double currIndex, std::stack<isect> isectStack)
 {
 	isect i;
 
@@ -122,7 +121,8 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		const Material& m = i.getMaterial();
 
 		//Direct component 
-		vec3f directColor = prod(m.shade(scene, r, i), (vec3f(1.0f, 1.0f, 1.0f) - m.kt));
+		//vec3f directColor = prod(m.shade(scene, r, i), (vec3f(1.0f, 1.0f, 1.0f) - m.kt));
+		vec3f directColor = m.shade(scene, r, i);
 		vec3f reflecColor = { 0.0f,0.0f,0.0f };
 		vec3f refracColor = { 0.0f, 0.0f, 0.0f };
 
@@ -136,14 +136,14 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 					vec3f uDistortion = primDirection.cross(i.N).normalize() * (double(rand()) * 0.1 / double(RAND_MAX));
 					vec3f vDistortion = primDirection.cross(uDistortion).normalize() * (double(rand()) * 0.1 / double(RAND_MAX));
 					ray secondaryRay(r.at(i.t), primDirection + uDistortion + vDistortion);
-					reflecColor += prod(traceRay(scene, secondaryRay, thresh, depth + 1, fromAir, objStack, 1.0 ,isectStack), m.kr);
+					reflecColor += prod(traceRay(scene, secondaryRay, thresh, depth + 1,  1.0 ,isectStack), m.kr);
 				}
 				reflecColor /= 100.0;
 			}
 			else {
 				ray reflecRay(r.at(i.t), (2 * (i.N.dot(-r.getDirection()))*i.N + r.getDirection()).normalize());
 				if (depth < depthLimit) {
-					reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1, fromAir,objStack,1.0 ,isectStack), m.kr);
+					reflecColor = prod(traceRay(scene, reflecRay, thresh, depth + 1,1.0 ,isectStack), m.kr);
 				}
 			}
 
@@ -181,7 +181,7 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 				vec3f newDirection = (mu * r.getDirection() - (costheta - mu*cosphi) * i.N).normalize();
 				ray refracRay(r.at(i.t), newDirection);
 				if (depth < depthLimit) {
-					refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, !fromAir, objStack, indexofNextMedium, isectStack	), m.kt);
+					refracColor = prod(traceRay(scene, refracRay, thresh, depth + 1, indexofNextMedium, isectStack	), m.kt);
 				}
 			}
 		}
@@ -190,17 +190,17 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 	
 	} else {
 		// No intersection. Return background color
-		if (this->backgroundImg == NULL || !m_pUI->getEnableBackground()) {
-			return vec3f(0.0f, 0.0f, 0.0f);
-		}
-		else {
-
+		if (this->backgroundImg  && m_pUI->getEnableBackground()) {
 			vec3f camerau = scene->getCamera()->getu();
 			vec3f camerav = scene->getCamera()->getv();
 			double projRayontoU = (r.getDirection() * camerau);
 			double projRayontoV = (r.getDirection() * camerav);
 
-			return getBackgroundColor(projRayontoU+ 0.5, projRayontoV + 0.5);
+			return getBackgroundColor(projRayontoU + 0.5, projRayontoV + 0.5);
+		}
+		else {
+			return vec3f(0.0f, 0.0, 0.0f);
+
 		}
 	}
 }

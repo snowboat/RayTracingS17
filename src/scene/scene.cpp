@@ -1,4 +1,6 @@
 #include <cmath>
+#include <fstream>
+#include <strstream>
 
 #include "scene.h"
 #include "light.h"
@@ -152,7 +154,7 @@ bool Scene::intersect( const ray& r, isect& i ) const
 	typedef list<Geometry*>::const_iterator iter;
 	iter j;
 
-	isect cur;
+	isect cur;		//working pointer to find the nearest intersecting object
 	bool have_one = false;
 
 	// try the non-bounded objects
@@ -375,45 +377,54 @@ void Scene::showHeightField()
 	cout << "hfh hfw" << hfWidth << " " << hfHeight << endl;
 	//add all vertices: 512*512 vertices
 	//trimesh will be shown between -1,-1 and 1,1
-	for (int y = 0; y < hfHeight; y+= 1) {
-		for (int x = 0; x < hfWidth; x+=1) {
+	for (int y = 0; y < hfHeight; y+= 3) {
+		for (int x = 0; x < hfWidth; x+=3) {
 			vec3f intensityColor = getBitmapColorFromPixel(heightFieldIntensity, hfWidth, hfHeight, x, y);
 			double intensityValue = 0.299*intensityColor[0] + 0.587*intensityColor[1] + 0.114*intensityColor[2];
 			vec3f newVertex (2.0* double(x) / double(hfWidth) - 1.0, 2.0* double(y) / double(hfHeight) - 1.0, intensityValue);
 			hfTrimesh->addVertex(newVertex);
-			//cout << "new vertex at " << newVertex << endl;
-			
-
-			//add material (mainly color) to this vertex
-			Material* matThisVertex = new Material();
-			matThisVertex->kd = getBitmapColorFromPixel(heightFieldColor, hfWidth, hfHeight, x, y);
-			hfTrimesh->addMaterial(matThisVertex);
-			//cout << "its color is" << matThisVertex->kd << endl;
-
 		}
 	}
 
 
 
 	//add faces
-	for (int y = 0; y < hfHeight-1; y+= 1) {
-		for (int x = 0; x < hfWidth - 1; x+= 1) {
+	for (int y = 0; y < hfHeight-4; y+= 3) {
+		for (int x = 0; x < hfWidth - 4; x+= 3) {
 			int v00 = x + y*hfWidth;
-			int v01 = v00 + hfWidth;
-			int v10 = v00 + 1;
-			int v11 = v01 + 1;
+			int v01 = v00 + hfWidth*3;
+			int v10 = v00 + 3;
+			int v11 = v01 + 3;
 			hfTrimesh->addFace(v00, v01, v11);
 			hfTrimesh->addFace(v00, v10, v11);
-			cout << "new face " << v00 << " " << v01 << " " << v11 << endl;
-			cout << "new face2 " << v00 << " " << v10 << " " << v11 << endl;
 		}
 	}
 
-	//fl_message(hfTrimesh->doubleCheck());
-	//copy them to bounded object list
-	for (std::list<Geometry*>::iterator itr = this->objects.begin(); itr != this->objects.end(); itr++) {
+	//hfTrimesh->generateNormals();
+
+	for (int y = 0; y < hfHeight; y += 3) {
+		for (int x = 0; x < hfWidth; x += 3) {
+			//add material (mainly color) to this vertex
+			Material* matThisVertex = new Material();
+			matThisVertex->kd = getBitmapColorFromPixel(heightFieldColor, hfWidth, hfHeight, x, y);
+			hfTrimesh->addMaterial(matThisVertex);
+		}
+
+	}
+	if (!hfTrimesh->doubleCheckTrueorFalse())
+		fl_alert("warning!!!");
+
+	this->add(hfTrimesh);
+	//this->boundedobjects.push_back(hfTrimesh);
+
+	//copy them to bounded object list (this should have been done in initScene(), but it has been executed before, so have to do it here
+	//for (std::list<Geometry*>::iterator itr = this->objects.begin(); itr != this->objects.end(); itr++) {
+	//	this->boundedobjects.push_back(*itr);
+	//}
+	for (std::vector<TrimeshFace*>::iterator itr = hfTrimesh->getFaces().begin(); itr != hfTrimesh->getFaces().end(); itr++) {
 		this->boundedobjects.push_back(*itr);
 	}
+	//initScene();
 }
 
 void Scene::setTextureMapping(bool tm)

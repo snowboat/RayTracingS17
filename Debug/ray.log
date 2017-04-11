@@ -1,3 +1,8 @@
-﻿  material.cpp
+﻿  RayTracer.cpp
+c:\users\samuel he\source\repos\raytracings17\src\fileio\parse.h(180): warning C4018: '<': signed/unsigned mismatch
+c:\users\samuel he\source\repos\raytracings17\src\raytracer.cpp(269): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+c:\users\samuel he\source\repos\raytracings17\src\raytracer.cpp(270): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  material.cpp
+  Generating Code...
   ray.vcxproj -> C:\Users\Samuel He\Source\Repos\RayTracingS17\.\Debug\ray.exe
   ray.vcxproj -> .\Debug/ray.pdb (Full PDB)

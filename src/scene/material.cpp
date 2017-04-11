@@ -35,7 +35,9 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 	vec3f I = ke;
 	
 	// iteration 1: ambient illumination
-	I = I + elementMulti(ka, scene->ambientLight);
+	//I = I + elementMulti(ka, scene->ambientLight);
+	I += prod(prod(ka, scene->ambientLight), vec3f(1.0, 1.0, 1.0) - kt);
+	
 	// iteration 2+3 :specular and diffuse, multiplied by shadow+distance attenuation
 	typedef list<Light*>::const_iterator iter;
 	iter j;
@@ -64,10 +66,12 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 			}
 			
 			Diffuse = diffuseCoeff * max(0.0, L*newNormal);	//if the shape of i.obj doesn't support texture mapping, then diffuse color is still the original one.
-		
+			Diffuse = prod(Diffuse, vec3f(1.0, 1.0, 1.0) - kt);
+
 		}
 		else {
 			Diffuse = diffuseCoeff * max(0.0, L*i.N);	//if the shape of i.obj doesn't support texture mapping, then diffuse color is still the original one.
+			Diffuse = prod(Diffuse, vec3f(1.0, 1.0, 1.0) - kt);
 		}
 
 
@@ -75,6 +79,9 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 
 
 		vec3f Attenuation;
+
+		//TODO: TO ACCELERATE, IF DISTANCE ATTENUATION IS ALREADY < THRESH, THEN DON'T CHECK SHADOW ATTENUATION, DIRECTLY RETURN 000 INSTEAD.
+
 		//if soft shadow is enabled, use "soft shadow attenuation" instead.
 		if (scene->getSoftShadow()) {
 			Attenuation = (*j)->distanceAttenuation(P)*   prod((*j)->shadowAttenuationSoft(P, scene->getSoftShadowCoeff()), (*j)->getColor(P));
