@@ -4,9 +4,9 @@ SBT-raytracer 1.0
 
 camera
 {
-	position = (15, 1, 0);
+	position = (20, 0, 0);
 	viewdir = (-1, 0, 0);
-	updir = (0, 0, 1);
+	updir = (0, 0, -1);
 }
 
 directional_light
@@ -15,7 +15,7 @@ directional_light
 	color = (1, 1, 1);
 }
 
-scale(0.6,0.6,0.6,  paraboloid {
+scale(4,4,2,  hyperbolic_paraboloid {
 	material = { 
 		diffuse = (1,1,1);
 		transmissive = (0,0,0);

@@ -1,14 +1,14 @@
 #pragma once
-#ifndef __Paraboloid_H__
-#define __Paraboloid_H__
+#ifndef __Hyperboloid_H__
+#define __Hyperboloid_H__
 
 #include "../scene/scene.h"
 
-class Paraboloid
+class Hyperboloid
 	: public MaterialSceneObject
 {
 public:
-	Paraboloid(Scene *scene, Material *mat)
+	Hyperboloid(Scene *scene, Material *mat)
 		: MaterialSceneObject(scene, mat)
 	{
 	}
@@ -28,4 +28,4 @@ public:
 		return localbounds;
 	}
 };
-#endif // __Paraboloid_H__
+#endif // __Hyperboloid_H__

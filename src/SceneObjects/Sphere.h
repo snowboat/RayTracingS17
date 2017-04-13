@@ -17,7 +17,6 @@ public:
 
 	virtual bool getLocalUV(const ray& r, const isect& i, double& u, double& v) const ;	// returns true only if this sceneobject supports texture mapping
 	
-	bool getLocalPertubation(const ray& r, isect& i, double& u, double& v);
 
     virtual BoundingBox ComputeLocalBoundingBox()
     {

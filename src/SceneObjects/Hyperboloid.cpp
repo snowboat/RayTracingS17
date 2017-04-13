@@ -1,12 +1,10 @@
 #include <cmath>
 
-#include "Paraboloid.h"
+#include "Hyperboloid.h"
 
 
-bool Paraboloid::intersectLocal(const ray & r, isect & i) const
+bool Hyperboloid::intersectLocal(const ray & r, isect & i) const
 {
-	vec3f v = -r.getPosition();	//link between ray origin and center of sphere.
-	double b = v.dot(r.getDirection());
 
 
 	double A = r.getDirection()[0] * r.getDirection()[0] + r.getDirection()[1] * r.getDirection()[1] - r.getDirection()[2] * r.getDirection()[2];
@@ -14,8 +12,6 @@ bool Paraboloid::intersectLocal(const ray & r, isect & i) const
 	double C = r.getPosition()[0] * r.getPosition()[0] + r.getPosition()[1] * r.getPosition()[1] - r.getPosition()[2] * r.getPosition()[2] - 1;
 	double discriminant = B*B - 4 * A*C;
 
-
-	//double discriminant = 4 * (b*b - v.dot(v) + 1);	//Discriminant = b^2 - 4*c, where c = (v^2-1)
 
 	if (discriminant < 0.0) {
 		return false;
@@ -49,7 +45,12 @@ bool Paraboloid::intersectLocal(const ray & r, isect & i) const
 	return true;
 }
 
-bool Paraboloid::getLocalUV(const ray & r, const isect & i, double & u, double & v) const
+bool Hyperboloid::getLocalUV(const ray & r, const isect & i, double & u, double & v) const
+{
+	return false;
+}
+
+bool Hyperboloid::getLocalPertubation(const ray & r, isect & i, double & u, double & v)
 {
 	return false;
 }

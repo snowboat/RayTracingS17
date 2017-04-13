@@ -19,7 +19,8 @@
 #include "../SceneObjects/Cylinder.h"
 #include "../SceneObjects/Sphere.h"
 #include "../SceneObjects/Square.h"
-#include "../SceneObjects/Paraboloid.h"
+#include "../SceneObjects/Hyperboloid.h"
+#include "../SceneObjects/HyperbolicParaboloid.h"
 #include "../scene/light.h"
 
 typedef map<string,Material*> mmap;
@@ -303,8 +304,11 @@ static void processGeometry( string name, Obj *child, Scene *scene,
 		if( name == "sphere" ) {
 			obj = new Sphere( scene, mat );
 		}
-		else if (name == "paraboloid") {
-			obj = new Paraboloid(scene, mat);
+		else if (name == "hyperboloid") {
+			obj = new Hyperboloid(scene, mat);
+		}
+		else if (name == "hyperbolic_paraboloid") {
+			obj = new HyperbolicParaboloid(scene, mat);
 		}
 		else if( name == "box" ) {
 			obj = new Box( scene, mat );
