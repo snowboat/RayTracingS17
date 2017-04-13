@@ -366,6 +366,17 @@ void TraceUI::cb_ambientLightSlides(Fl_Widget * o, void * v)
 	}
 }
 
+void TraceUI::cb_accShadowAttenSlides(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+	pUI->accShadowAttenThresh = double(((Fl_Slider *)o)->value());
+
+	//sync this value to scene if any
+	if (pUI->raytracer->sceneLoaded()) {
+		pUI->raytracer->getScene()->accShadowAttenThresh = pUI->accShadowAttenThresh;
+	}
+}
+
 void TraceUI::cb_glossyReflection(Fl_Widget * o, void * v)
 {
 	TraceUI* pUI = (TraceUI*)(o->user_data());
@@ -628,6 +639,7 @@ TraceUI::TraceUI() {
 	m_bumpMapping = false;
 	m_terminationIntensity = 0.0;
 	ambientLight = 1.0;
+	accShadowAttenThresh = 0.0;
 
 	m_mainWindow = new Fl_Window(100, 40, 400, 400, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
@@ -849,6 +861,19 @@ TraceUI::TraceUI() {
 		m_ambientLightSlider->value(ambientLight);
 		m_ambientLightSlider->align(FL_ALIGN_RIGHT);
 		m_ambientLightSlider->callback(cb_ambientLightSlides);
+
+		// Ambient Light
+		m_accShadowAttenSlider = new Fl_Value_Slider(10, 380, 180, 20, "Accelerate Shadow Attenuation");
+		m_accShadowAttenSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_accShadowAttenSlider->type(FL_HOR_NICE_SLIDER);
+		m_accShadowAttenSlider->labelfont(FL_COURIER);
+		m_accShadowAttenSlider->labelsize(12);
+		m_accShadowAttenSlider->minimum(0.00);
+		m_accShadowAttenSlider->maximum(0.05);
+		m_accShadowAttenSlider->step(0.005);
+		m_accShadowAttenSlider->value(accShadowAttenThresh);
+		m_accShadowAttenSlider->align(FL_ALIGN_RIGHT);
+		m_accShadowAttenSlider->callback(cb_accShadowAttenSlides);
 
 		m_renderButton = new Fl_Button(240, 27, 70, 25, "&Render");
 		m_renderButton->user_data((void*)(this));

@@ -9,12 +9,20 @@ camera
 	updir = (0, 0, -1);
 }
 
-directional_light
-{
-	direction = (-1, 0, 0);
-	color = (1, 1, 1);
-}
 
+warn_model_light
+{
+	position = (10,0,0);
+	color = (1, 1,1);
+	central_direction = (-1,0,0);
+	specular_exponent = 2.0;
+	xflapmin = -7;
+	xflapmax = 7;
+	yflapmin = -7;
+	yflapmax = 7;
+	zflapmin = -7;
+	zflapmax = 7;
+}
 scale(4,4,2,  hyperbolic_paraboloid {
 	material = { 
 		diffuse = (1,1,1);

@@ -52,6 +52,7 @@ public:
 	Fl_Light_Button*	m_bumpMappingButton;
 	Fl_Slider*			m_adaptiveTerminationSlider;
 	Fl_Slider*			m_ambientLightSlider;
+	Fl_Slider*			m_accShadowAttenSlider;
 
 
 
@@ -86,7 +87,6 @@ public:
 	double		getSoftshadowCoeff();
 	bool		getGlossyReflection();
 	bool		getMotionBlur();
-	bool		getBumpMapping();
 private:
 	RayTracer*	raytracer;
 
@@ -112,6 +112,7 @@ private:
 	double		aperture;
 	double		softshadowCoeff;
 
+	double		accShadowAttenThresh;
 	double		ambientLight; //(this value is gonna be used for all three channels)
 
 	unsigned char* hfIntensityImg;
@@ -153,6 +154,7 @@ private:
 	static void cb_apertureSlides(Fl_Widget* o, void* v);
 	static void cb_softshadowCoeffSlides(Fl_Widget* o, void* v);
 	static void cb_ambientLightSlides(Fl_Widget* o, void* v);
+	static void cb_accShadowAttenSlides(Fl_Widget* o, void* v);
 	static void cb_glossyReflection(Fl_Widget* o, void* v);
 	static void cb_motionBlur(Fl_Widget* o, void* v);
 	static void cb_bumpMapping(Fl_Widget* o, void* v);

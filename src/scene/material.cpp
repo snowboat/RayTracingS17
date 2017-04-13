@@ -78,25 +78,22 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 		vec3f Specular = ks*pow(max(0.0, V*R), shininess * 128);
 
 
-		vec3f Attenuation;
-
-		//TODO: TO ACCELERATE, IF DISTANCE ATTENUATION IS ALREADY < THRESH, THEN DON'T CHECK SHADOW ATTENUATION, DIRECTLY RETURN 000 INSTEAD.
-
-		//if soft shadow is enabled, use "soft shadow attenuation" instead.
-		if (scene->getSoftShadow()) {
-			if ((*j)->getColor(P).iszero())		//no need to check attenuation. thus it's faster
-				Attenuation = { 0.0,0.0,0.0 };
-			else
-				Attenuation = (*j)->distanceAttenuation(P)*   prod((*j)->shadowAttenuationSoft(P, scene->getSoftShadowCoeff()), (*j)->getColor(P));
-		}
+		if ((I + Diffuse + Specular).iszero())
+			return vec3f(0.0, 0.0, 0.0);
 		else {
-			if ((*j)->getColor(P).iszero())		//no need to check attenuation. thus it's faster
-				Attenuation = { 0.0,0.0,0.0 };
-			else
-				Attenuation = (*j)->distanceAttenuation(P)*   prod((*j)->shadowAttenuation(P), (*j)->getColor(P));
-		}
-		I += elementMulti(Attenuation, Diffuse + Specular);
-	}
+			vec3f Attenuation;
 
+			//if soft shadow is enabled, use "soft shadow attenuation" instead.
+			if (scene->getSoftShadow()) {
+				Attenuation = (*j)->distanceAttenuation(P)*   prod((*j)->shadowAttenuationSoft(P, scene->getSoftShadowCoeff()), (*j)->getColor(P));
+			}
+			else {
+				Attenuation = (*j)->distanceAttenuation(P)*   prod((*j)->shadowAttenuation(P), (*j)->getColor(P));
+			}
+			I += elementMulti(Attenuation, Diffuse + Specular);
+			}
+
+		}
 	return I;
+
 }

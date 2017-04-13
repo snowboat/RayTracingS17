@@ -290,6 +290,7 @@ public:
 		heightFieldIntensity = nullptr;
 		terminationThreshold = 1.0;
 		ambientLight = vec3f(1.0, 1.0, 1.0);
+		accShadowAttenThresh = 0.0;
 	}
 	virtual ~Scene();
 
@@ -347,6 +348,7 @@ public:
 	void setTextureMapping(bool tm);
 	bool getTextureMapping();
 	bool	bumpMapping;
+	double accShadowAttenThresh;
 
 	void preturbNormal(vec3f& normal, const ray& r, double& u, double& v);
 	
