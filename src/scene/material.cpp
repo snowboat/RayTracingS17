@@ -77,9 +77,11 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 
 		vec3f Specular = ks*pow(max(0.0, V*R), shininess * 128);
 
-
-		if ((I + Diffuse + Specular).iszero())
-			return vec3f(0.0, 0.0, 0.0);
+		//if the shade before being attenuated is already very dark, then no need to attenuate it, since performing attenuation is computationally
+		//expensive but doesn't affect the visual effect much. thresh is specified by user, from 0.00to0.05,.
+		vec3f shadeWithoutAtten = Diffuse + Specular;
+		if (shadeWithoutAtten[0] < scene->accShadowAttenThresh && shadeWithoutAtten[1] < scene->accShadowAttenThresh && shadeWithoutAtten[2] < scene->accShadowAttenThresh)
+			I += shadeWithoutAtten;
 		else {
 			vec3f Attenuation;
 
