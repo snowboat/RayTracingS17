@@ -294,7 +294,7 @@ vec3f Scene::getBitmapColorFromPixel(unsigned char* bitmap, int bmpwidth, int bm
 
 double Scene::getPixelIntensity(unsigned char * bitmap, int bmpwidth, int bmpheight, int x, int y)
 {
-	vec3f color =  getBitmapColorFromPixel(bitmap, bmpwidth, bmpheight, x, y);
+	vec3f color = getBitmapColorFromPixel(bitmap, bmpwidth, bmpheight, x, y);
 	return 0.299*color[0] + 0.587*color[1] + 0.114*color[2];
 }
 
@@ -367,40 +367,50 @@ void Scene::setHFColorImg(unsigned char * hfc)
 void Scene::showHeightField()
 {
 	Material* emptyMaterial = new Material();
-	mat4f identityXform = { vec4f(1.0,0.0,0.0,0.0),
-		vec4f(0.0,1.0,0.0,0.0),
-		vec4f(0.0,0.0,1.0,0.0) ,
-		vec4f(0.0,0.0,0.0,1.0) };
 	TransformRoot* emptyNode = new TransformRoot();
 
-	Trimesh* hfTrimesh = new Trimesh(this, emptyMaterial,emptyNode);//generate a default trimesh WITH NO MATERIAL AND NO TRANSFORM
+	Trimesh* hfTrimesh = new Trimesh(this, emptyMaterial, emptyNode);//generate a default trimesh WITH NO MATERIAL AND NO TRANSFORM
 	cout << "hfh hfw" << hfWidth << " " << hfHeight << endl;
 	//add all vertices: 512*512 vertices
 	//trimesh will be shown between -1,-1 and 1,1
-	for (int y = 0; y < hfHeight; y+= 3) {
-		for (int x = 0; x < hfWidth; x+=3) {
+	int interval = 3;
+	for (int y = 0; y < hfHeight; y += interval) {
+		for (int x = 0; x < hfWidth; x += interval) {
 			vec3f intensityColor = getBitmapColorFromPixel(heightFieldIntensity, hfWidth, hfHeight, x, y);
 			double intensityValue = 0.299*intensityColor[0] + 0.587*intensityColor[1] + 0.114*intensityColor[2];
-			vec3f newVertex (2.0* double(x) / double(hfWidth) - 1.0, 2.0* double(y) / double(hfHeight) - 1.0, intensityValue);
+			vec3f newVertex(2.0* double(x) / double(hfWidth) - 1.0, 2.0* double(y) / double(hfHeight) - 1.0, intensityValue);
 			hfTrimesh->addVertex(newVertex);
 		}
 	}
 
-
-
+	int numCols = hfWidth / interval;
+	int numRows = hfHeight / interval;
 	//add faces
-	for (int y = 0; y < hfHeight-4; y+= 3) {
-		for (int x = 0; x < hfWidth - 4; x+= 3) {
-			int v00 = x + y*hfWidth;
-			int v01 = v00 + hfWidth*3;
-			int v10 = v00 + 3;
-			int v11 = v01 + 3;
+	for (int j = 0; j < numRows-1; j++) {
+		for (int i = 0; i < numCols -1; i++){
+			int v00 = i + j*numCols;
+			int v01 = v00 + numCols;
+			int v10 = v00 + 1;
+			int v11 = v01 + 1;
 			hfTrimesh->addFace(v00, v01, v11);
 			hfTrimesh->addFace(v00, v10, v11);
 		}
 	}
 
-	//hfTrimesh->generateNormals();
+
+	//add faces
+	//for (int y = 0; y < hfHeight-4; y+= 3) {
+	//	for (int x = 0; x < hfWidth - 4; x+= 3) {
+	//		int v00 = x + y*hfWidth;
+	//		int v01 = v00 + hfWidth*3;
+	//		int v10 = v00 + 3;
+	//		int v11 = v01 + 3;
+	//		hfTrimesh->addFace(v00, v01, v11);
+	//		hfTrimesh->addFace(v00, v10, v11);
+	//	}
+	//}
+
+	hfTrimesh->generateNormals();
 
 	for (int y = 0; y < hfHeight; y += 3) {
 		for (int x = 0; x < hfWidth; x += 3) {
@@ -409,13 +419,12 @@ void Scene::showHeightField()
 			matThisVertex->kd = getBitmapColorFromPixel(heightFieldColor, hfWidth, hfHeight, x, y);
 			hfTrimesh->addMaterial(matThisVertex);
 		}
-
 	}
-	if (!hfTrimesh->doubleCheckTrueorFalse())
-		fl_alert("warning!!!");
+	if (hfTrimesh->doubleCheckTrueorFalse())
+		fl_alert("great hf finished!!!");
 
 	this->add(hfTrimesh);
-	//this->boundedobjects.push_back(hfTrimesh);
+	this->boundedobjects.push_back(hfTrimesh);
 
 	//copy them to bounded object list (this should have been done in initScene(), but it has been executed before, so have to do it here
 	//for (std::list<Geometry*>::iterator itr = this->objects.begin(); itr != this->objects.end(); itr++) {
@@ -424,7 +433,7 @@ void Scene::showHeightField()
 	for (std::vector<TrimeshFace*>::iterator itr = hfTrimesh->getFaces().begin(); itr != hfTrimesh->getFaces().end(); itr++) {
 		this->boundedobjects.push_back(*itr);
 	}
-	initScene();
+	//initScene();
 }
 
 void Scene::setTextureMapping(bool tm)
