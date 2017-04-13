@@ -301,6 +301,12 @@ void TraceUI::cb_enableTextureMapping(Fl_Widget * o, void * v)
 	}
 }
 
+void TraceUI::cb_enableAdaptiveSupersampling(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+	pUI->m_adaptiveSupersampling = bool(((Fl_Light_Button *)o)->value());
+}
+
 void TraceUI::cb_enableSoftShadow(Fl_Widget * o, void * v)
 {
 	TraceUI* pUI = (TraceUI*)(o->user_data());
@@ -590,6 +596,11 @@ bool TraceUI::getMotionBlur()
 	return this->m_motionBlur;
 }
 
+bool TraceUI::getAdaptiveSupersampling()
+{
+	return this->m_adaptiveSupersampling;
+}
+
 // menu definition
 Fl_Menu_Item TraceUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
@@ -640,8 +651,9 @@ TraceUI::TraceUI() {
 	m_terminationIntensity = 0.0;
 	ambientLight = 1.0;
 	accShadowAttenThresh = 0.0;
+	m_adaptiveSupersampling = false;
 
-	m_mainWindow = new Fl_Window(100, 40, 400, 400, "Ray <Not Loaded>");
+	m_mainWindow = new Fl_Window(100, 40, 400, 500, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
 		// install menu bar
 		m_menubar = new Fl_Menu_Bar(0, 0, 320, 25);
@@ -874,6 +886,12 @@ TraceUI::TraceUI() {
 		m_accShadowAttenSlider->value(accShadowAttenThresh);
 		m_accShadowAttenSlider->align(FL_ALIGN_RIGHT);
 		m_accShadowAttenSlider->callback(cb_accShadowAttenSlides);
+
+		//use background image or not
+		m_adaptiveSupersamplingButton = new Fl_Light_Button(10, 405, 180, 25, "&Adaptive Supersampling");
+		m_adaptiveSupersamplingButton->user_data((void*)(this));   // record self to be used by static callback functions
+		m_adaptiveSupersamplingButton->value(m_adaptiveSupersampling);
+		m_adaptiveSupersamplingButton->callback(cb_enableAdaptiveSupersampling);
 
 		m_renderButton = new Fl_Button(240, 27, 70, 25, "&Render");
 		m_renderButton->user_data((void*)(this));

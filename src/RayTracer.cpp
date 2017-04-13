@@ -340,6 +340,30 @@ void RayTracer::traceLines( int start, int stop )
 			tracePixel(i,j);
 }
 
+vec3f RayTracer::getAdaptivelySupersampledColor(Scene* scene, double x, double y, int depth) {
+	//x and y are the lower-left corner
+	double atomicx = double(1) / (double(buffer_width) * depth);	//grid size (determined in accordance to current depth)
+	double atomicy = double(1) / (double(buffer_height) * depth);
+
+	
+	vec3f colorLowerLeft = trace(scene, x, y);
+	vec3f colorLowerRight = trace(scene, x + atomicx, y);
+	vec3f colorUpperLeft = trace(scene, x, y + atomicy);
+	vec3f colorUpperRight = trace(scene, x + atomicx, y + atomicy);
+	vec3f colorCentre = trace(scene, x + atomicx / 2, y + atomicy / 2);
+	if (depth <= adaSupLimit) {
+		if ((colorLowerLeft - colorCentre).length() > 0.01)
+			colorLowerLeft = getAdaptivelySupersampledColor(scene, x, y, depth + 1);
+		if ((colorLowerRight - colorCentre).length() > 0.01)
+			colorLowerRight = getAdaptivelySupersampledColor(scene, x + atomicx / 2, y, depth + 1);
+		if ((colorUpperLeft - colorCentre).length() > 0.01)
+			colorUpperLeft = getAdaptivelySupersampledColor(scene, x, y + atomicy / 2, depth + 1);
+		if ((colorUpperRight - colorCentre).length() > 0.01)
+			colorUpperRight = getAdaptivelySupersampledColor(scene, x + atomicx / 2, y + atomicy / 2, depth + 1);
+	}
+	return (colorLowerLeft + colorLowerRight + colorUpperLeft + colorUpperRight) / 4;
+}
+
 void RayTracer::tracePixel( int i, int j )
 {
 	vec3f col;	//color of this pixel
@@ -352,33 +376,40 @@ void RayTracer::tracePixel( int i, int j )
 	double atomicx = double(1) / double(buffer_width);	//corresponding length of one pixel
 	double atomicy = double(1) / double(buffer_height);
 	
-	if (!m_pUI->getEnableAntialiasing()) {	//only return color of central x & central y
+	if (m_pUI->getEnableAntialiasing()) {	//only return color of central x & central y
+		if (m_pUI->getAdaptiveSupersampling()) {
+			col = getAdaptivelySupersampledColor(scene, x, y, 1);	//it's much faster. the effect is similar to non-adaptive supersampling with 4/5 subpixels, which is super expensive
+		}
+		else {		//non-adaptive supersampling
+			int numSubpixels = m_pUI->getNumSubpixels();
+			double startx = x - 0.5 / double(buffer_width);
+			double starty = y - 0.5 / double(buffer_height);
+
+			double xstep = (1.0 / double(buffer_width)) / double(numSubpixels - 1);
+			double ystep = (1.0 / double(buffer_height)) / double(numSubpixels - 1);
+
+			for (int i = 0; i < numSubpixels; i++) {
+				for (int j = 0; j < numSubpixels; j++) {
+					if (m_pUI->getEnableJittering()) {	//random direction witin +- one atomic range
+						double offsetCoeff = ((double)rand() / (RAND_MAX)) * 2 - 1;
+						col = trace(scene, startx + xstep*i + offsetCoeff*atomicx, starty + ystep*j + offsetCoeff*atomicy);//the point to trace is a random point between x,y plus/minus one atomic length
+					}
+					else {//determined direction
+						col += trace(scene, startx + xstep*i, starty + ystep*j) / (numSubpixels*numSubpixels);
+					}
+				}
+			}
+		}
+
+		
+	}
+	else {
 		if (m_pUI->getEnableJittering()) {
 			double offsetCoeff = ((double)rand() / (RAND_MAX)) * 2 - 1;
-			col = trace(scene, x+offsetCoeff*atomicx, y+offsetCoeff*atomicy);//the point to trace is a random point between x,y plus/minus one atomic length
+			col = trace(scene, x + offsetCoeff*atomicx, y + offsetCoeff*atomicy);//the point to trace is a random point between x,y plus/minus one atomic length
 		}
 		else {
 			col = trace(scene, x, y);
-		}
-	}
-	else {
-		int numSubpixels = m_pUI->getNumSubpixels();
-		double startx = x - 0.5 / double(buffer_width);
-		double starty = y - 0.5 / double(buffer_height);
-
-		double xstep = (1.0 / double(buffer_width)) / double(numSubpixels - 1);
-		double ystep =( 1.0 / double(buffer_height)) / double(numSubpixels - 1);
-
-		for (int i = 0; i < numSubpixels; i++) {
-			for (int j = 0; j < numSubpixels; j++) {
-				if (m_pUI->getEnableJittering()) {	//random direction witin +- one atomic range
-					double offsetCoeff = ((double)rand() / (RAND_MAX)) * 2 - 1;
-					col = trace(scene, startx + xstep*i + offsetCoeff*atomicx, starty + ystep*j + offsetCoeff*atomicy);//the point to trace is a random point between x,y plus/minus one atomic length
-				}
-				else {//determined direction
-					col += trace(scene, startx + xstep*i, starty + ystep*j) / (numSubpixels*numSubpixels);
-				}
-			}
 		}
 	}
 

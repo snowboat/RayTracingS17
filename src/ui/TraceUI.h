@@ -50,6 +50,7 @@ public:
 	Fl_Light_Button*	m_glossyReflectionButton;
 	Fl_Light_Button*	m_motionBlurButton;
 	Fl_Light_Button*	m_bumpMappingButton;
+	Fl_Light_Button*	m_adaptiveSupersamplingButton;
 	Fl_Slider*			m_adaptiveTerminationSlider;
 	Fl_Slider*			m_ambientLightSlider;
 	Fl_Slider*			m_accShadowAttenSlider;
@@ -87,6 +88,7 @@ public:
 	double		getSoftshadowCoeff();
 	bool		getGlossyReflection();
 	bool		getMotionBlur();
+	bool		getAdaptiveSupersampling();
 private:
 	RayTracer*	raytracer;
 
@@ -106,6 +108,7 @@ private:
 	bool		m_glossyReflection;
 	bool		m_motionBlur;
 	bool		m_bumpMapping;
+	bool		m_adaptiveSupersampling;
 	double		m_terminationIntensity;
 
 	double		focalLength;
@@ -147,6 +150,7 @@ private:
 	static void cb_enableAntialiasing(Fl_Widget* o, void* v);
 	static void cb_enableDepthofField(Fl_Widget* o, void* v);
 	static void cb_enableTextureMapping(Fl_Widget* o, void* v);
+	static void cb_enableAdaptiveSupersampling(Fl_Widget* o, void* v);
 	static void cb_enableSoftShadow(Fl_Widget* o, void* v);
 	static void cb_numSubPixelsSlides(Fl_Widget* o, void* v);
 	static void cb_focalLengthSlides(Fl_Widget* o, void* v);

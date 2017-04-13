@@ -24,6 +24,7 @@ public:
 	double aspectRatio();
 	void traceSetup( int w, int h );
 	void traceLines( int start = 0, int stop = 10000000 );
+	vec3f getAdaptivelySupersampledColor(Scene * scene, double x, double y, int depth);
 	void tracePixel( int i, int j );
 
 	bool loadScene( char* fn );
@@ -44,6 +45,8 @@ private:
 	unsigned char* backgroundImg;
 
 	bool m_bSceneLoaded;
+
+	const int adaSupLimit = 6;
 
 	TraceUI* m_pUI;
 };
