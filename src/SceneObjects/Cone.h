@@ -13,8 +13,8 @@ public:
 		: MaterialSceneObject( scene, mat )
 	{
 		height = h;
-		b_radius = (br < 0.0f)?(-br):(br);
-		t_radius = (tr < 0.0f)?(-tr):(tr);
+		b_radius = (br < 0.0f)?(-br):(br);	//bottom radius
+		t_radius = (tr < 0.0f)?(-tr):(tr);	//top radius
 		capped = cap;
 
 		computeABC();

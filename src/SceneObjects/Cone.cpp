@@ -6,7 +6,7 @@
 bool Cone::intersectLocal( const ray& r, isect& i ) const
 {
 	i.obj = this;
-
+	//two possibilities:
 	if( intersectCaps( r, i ) ) {
 		isect ii;
 		if( intersectBody( r, ii ) ) {
@@ -51,21 +51,21 @@ bool Cone::intersectBody( const ray& r, isect& i ) const
 		return false;
 	}
 
-	if( t1 > RAY_EPSILON ) {
+	if( t1 > RAY_EPSILON ) {	//smaller root
 		// Two intersections.
-		vec3f P = r.at( t1 );
+		vec3f P = r.at( t1 );	//position of intersection point
 		double z = P[2];
 		if( z >= 0.0 && z <= height ) {
 			// It's okay.
 			i.t = t1;
             i.N = vec3f( P[0], P[1], 
               -(C*P[2]+(t_radius-b_radius)*t_radius/height)).normalize();
-				
-			
 			return true;
 		}
 	}
 
+
+	//one intersection. only t2
 	vec3f P = r.at( t2 );
 	double z = P[2];
 	if( z >= 0.0 && z <= height ) {

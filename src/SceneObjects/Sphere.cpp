@@ -7,28 +7,28 @@
 
 bool Sphere::intersectLocal( const ray& r, isect& i ) const
 {
-	vec3f v = -r.getPosition();	//link between centerofsphere and ray origin.
-	double b = v.dot(r.getDirection());
-	double discriminant = b*b - v.dot(v) + 1;
+	vec3f v = -r.getPosition();	//link between ray origin and center of sphere.
+	double b = v.dot(r.getDirection());	
+	double discriminant = b*b - v.dot(v) + 1;	//Discriminant = b^2 - 4*c, where c = (v^2-1)
 
 	if( discriminant < 0.0 ) {
 		return false;
 	}
 
 	discriminant = sqrt( discriminant );
-	double t2 = b + discriminant;
+	double t2 = b + discriminant;	//a=1, since direction is normalized
 
-	if( t2 <= RAY_EPSILON ) {
+	if( t2 <= RAY_EPSILON ) {	//larger root
 		return false;
 	}
 
 	i.obj = this;
 
-	double t1 = b - discriminant;
+	double t1 = b - discriminant;	//smaller root
 
 	if( t1 > RAY_EPSILON ) {
 		i.t = t1;
-		i.N = r.at( t1 ).normalize();
+		i.N = r.at( t1 ).normalize();	//normal vector is the point on unit sphere
 	} else {
 		i.t = t2;
 		//i.N = r.at(t2).normalize();

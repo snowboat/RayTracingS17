@@ -424,7 +424,7 @@ void Scene::showHeightField()
 	for (std::vector<TrimeshFace*>::iterator itr = hfTrimesh->getFaces().begin(); itr != hfTrimesh->getFaces().end(); itr++) {
 		this->boundedobjects.push_back(*itr);
 	}
-	//initScene();
+	initScene();
 }
 
 void Scene::setTextureMapping(bool tm)
