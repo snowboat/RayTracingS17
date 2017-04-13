@@ -30,11 +30,11 @@ bool Hyperboloid::intersectLocal(const ray & r, isect & i) const
 
 	if (t1 > RAY_EPSILON) {
 		i.t = t1;
-		i.N = vec3f(2 * r.at(t1)[0], 2 * r.at(t1)[1], 1).normalize();
+		i.N = vec3f(2 * r.at(t1)[0], 2 * r.at(t1)[1], -2 * r.at(t1)[2]).normalize();
 	}
 	else {
 		i.t = t2;
-		i.N = vec3f(2 * r.at(t2)[0], 2 * r.at(t2)[1], 1).normalize();
+		i.N = vec3f(2 * r.at(t2)[0], 2 * r.at(t2)[1], -2 * r.at(t2)[2]).normalize();
 	}
 
 	//flip normal if necessary
